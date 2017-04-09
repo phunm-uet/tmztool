@@ -61,12 +61,33 @@ class ProductController extends Controller
 		return response()->json($data);		
     }
 
+    public function getCollection(Request $request)
+    {
+        $access_token = Session::get('access_token');
+        $store_id = $request->store_id;
+        $res = $this->client->request('GET', "$store_id/commerce_store_collections",["query" => "access_token=$access_token"]);
+
+        $res = json_decode($res->getBody(),true);
+        $data = $res['data'];
+        return response()->json($data);
+    }
+
+    public function creatCollection(Request $request){
+        $access_token = Session::get('access_token');
+        $name = $request->name;
+        $store_id = $request->store_id;
+        $res = $this->client->request('POST',"$store_id/commerce_store_collections",
+                ["form_params" => ["name" => $name,"visibility" => "PUBLISHED","access_token" => $access_token]]); 
+          
+    }
+
     public function submitLinks(Request $request){
     	$access_token = Session::get('access_token');
-    	// dd($access_token);
+        $col_id = $request->store["id"];
+    	$filterOld = $request->store["filter"];
+        $filterOld = json_decode($filterOld,true);
     	$links = $request->links;
     	$idCategory = $request->id_category;
-    	 // dd($idCategory);
     	$products = array();
     	$goutteClient = new GoutteClient();
     	foreach($links as $link){
@@ -96,7 +117,12 @@ class ProductController extends Controller
 
 			$res = json_decode($res->getBody(),true);
 			array_push($products,["link" => $link,"id" => $res["id"],"name" => $title]);
+           
+            array_push($filterOld["product_item_id"]['is_any'],$res['id']);
     	}
+        $filterOld = json_encode($filterOld);
+        $res = $this->client->request('POST',"$col_id",
+                ["form_params" => ["filter" => $filterOld,"access_token" => $access_token]], ["query" => "access_token=$access_token"]);
     	return response()->json($products);
     }
 }

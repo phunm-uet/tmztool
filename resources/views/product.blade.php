@@ -50,6 +50,29 @@
 			<div class="col-xs-12" ng-if="selectPage == false">
 				<p>Nothing product Category</p>			
 			</div>			
+		</div>
+		<div class="row" style="margin-top: 10px" ng-if="openSelectCollection">
+			<div class="col-xs-12" ng-if="selectPage">
+			<label for="store_id">Enter Store ID</label>
+				<div class="form-inline">
+					<div class="form-group">
+					<input type="text" class="form-control" required="required" ng-model="store_id">
+					<button type="button" id="get-collection" class="btn btn-primary" ng-click="getCollection(store_id)">Get Collection</button>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-xs-12">
+					<p>Select Product Collection</p>
+					<div class="col-xs-8">
+						<select ng-options="collection as collection.name for collection in collections" 
+						   ng-model="selectedCollection" ng-change="changeCollection(selectedCollection)" class="form-control"></select>					
+					</div>
+					<div class="col-xs-4">
+						<button type="button" class="btn btn-success" ng-click="openModal()">Create New Collection</button>
+					</div>					
+				</div>				
+			</div>
 		</div>			
 		</div>
 		<div class="col-xs-6 col-xs-offset-2">
@@ -76,8 +99,10 @@
 				</div>
 			</div>
 		</div>
+
+
 	</div>
-	<div class="container" ng-if="selecedCategory">
+	<div class="container" ng-if="openSubmitLinks">
 		<form ng-submit="submitLink(links)">
 			<div class="form-group">
 				<label for="">Enter Link Shopify</label>
@@ -86,6 +111,28 @@
 			<button class="btn btn-block btn-success">Submit</button>
 		</form>
 	</div>
+
+	{{-- Modal Create new Collection --}}
+	<div class="modal fade" id="new-collection">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<h4 class="modal-title">Create new Collection</h4>
+				</div>
+				<div class="modal-body">
+					<div class="form-group">
+						<input type="text" class="form-control" required="required" ng-model="collectionName">
+					</div>
+					<button type="button" class="form-control btn btn-primary" ng-click="creatNewCollection(store_id)">Add</button>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>	
+
 </body>
 </html>
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.3/angular.min.js"></script>
@@ -96,17 +143,18 @@
 		$scope.selecedCategory = false;
 		$scope.loading = false;
 		$scope.uploadSuccess = false;
+		$scope.openSelectCollection = false;
+		$scope.openSubmitLinks = false;
 		$http.get("api/pages").then(function(response){
 			 $scope.pages = response.data;
 			 $scope.loading = false;
 		})
 		$scope.changePage = function(selectePage){
-			// console.log(selectePage);
+			$scope.openSelectCollection = true;
 			$scope.selectedPage = selectePage;
 			$scope.selectPage = true;
 			$scope.loading = true;
 			$http.get("api/product_category",{params:{"id": selectePage.id}}).then(function(response){
-				// console.log(response.data.length);
 				$scope.loading = false;
 				if(response.data.length > 0){
 					$scope.prodcutCategory = response.data;
@@ -115,17 +163,17 @@
 					$scope.selecedCategory = false;
 					console.log($scope.selecedCategory);
 				}
-				
 			})
 		}
 
 		$scope.chanegCategory = function(selectCategory){
 			$scope.selecedCategory = selectCategory;
 		}
+
 		$scope.submitLink = function(links){
 			$scope.loading = true;
 			var idCategory = $scope.selecedCategory.id;
-			$http.post("api/submitLinks",{links:links,id_category:idCategory}).then(function(response){
+			$http.post("api/submitLinks",{links:links,id_category:idCategory,store:$scope.selectedCollection}).then(function(response){
 				$scope.loading = false;
 				$scope.uploadSuccess =true;
 				$scope.products = response.data;
@@ -133,6 +181,30 @@
 				alert("Done");
 
 			})
+		}
+
+		$scope.changeCollection = function(selectedCollection){
+			$scope.openSubmitLinks = true;
+			$scope.selectedCollection = selectedCollection;
+		}
+
+		$scope.getCollection = function(store_id){
+			$scope.store_id = store_id;
+			$http.get("api/getcollection",{params:{"store_id": store_id}}).then(function(response){
+				$scope.collections = response.data;
+			})
+		}
+
+		$scope.openModal = function()
+		{
+			$("#new-collection").modal();
+		}
+
+		$scope.creatNewCollection = function(store_id){
+			$http.post("api/createcollection",{name:$scope.collectionName,"store_id": $scope.store_id}).then(function(response){
+				$("#new-collection").modal('hide');
+			});
+			
 		}
 	});
 </script>

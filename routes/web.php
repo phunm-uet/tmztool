@@ -22,3 +22,5 @@ Route::get('/product',"ProductController@getProduct");
 Route::get('api/pages',"ProductController@apiGetPages");
 Route::get('api/product_category','ProductController@apiCategory');
 Route::post('api/submitLinks','ProductController@submitLinks');
+Route::post('api/createcollection','ProductController@creatCollection');
+Route::get('api/getcollection', 'ProductController@getCollection');
