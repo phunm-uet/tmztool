@@ -17,16 +17,17 @@
 		  <strong>Danger!</strong> Invalidate Token.
 		</div>
 		@endif 
-		<form action="login" method="POST" role="form">
+		<form action="product/login" method="POST" role="form">
 			{{ csrf_field() }}	
 			<div class="form-group">
 				<label for="">Input Accesstoken</label>
 				<input type="text" name="access_token" class="form-control" required="true" placeholder="Accesstoken">
 			</div>
-			<button type="submit" class="btn btn-primary">Login</button>
-		</form>		
+			<button type="submit" class="btn btn-primary btn-block">Login</button>
+		</form>
+		<br>
+		<a href="hd" target="_blank">Huong dan su dung</a>		
 	</div>
-
 	</div>
 	</div>
 </body>

@@ -1,12 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<title>Tool Import Product</title>
-	<!-- Latest compiled and minified CSS & JS -->
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
-	<script src="//code.jquery.com/jquery.js"></script>
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+@extends('layouts.master')
+@section('breadcrumb')
+    Import FB store
+@endsection
+@section('css')
 	<style>
 		.container {
 			margin-top:50px;
@@ -31,12 +27,30 @@
 		  z-index: 100;
 		}		
 	</style>
-</head>
-<body  ng-app="tool" ng-controller="toolCtrl">
+@endsection
+@section('menu')
+    <li class="treeview">
+        <a href="/marketing">
+            <i class="fa fa-dashboard"></i> <span>Dashboard</span>
+        </a>
+    </li>
+    <li class="treeview active">
+      <a href="{{ route("import_fb") }}">
+        <i class="fa fa-upload"></i> <span>Import store FB</span>
+      </a>
+    </li>
+    <li class="treeview">
+      <a href="{{ route("ads") }}">
+        <i class="fa fa-gear"></i> <span>Auto Campaign</span>
+      </a>
+    </li>
+@stop
+@section('content')
+<div  ng-app="tool" ng-controller="toolCtrl">
 <div id="loading" ng-show="loading">
   <img id="loading-image" src="https://yudyx86.files.wordpress.com/2015/06/loading.gif" alt="Loading..." />
 </div>
-	<div class="container">
+	<div class="container-fluid">
 		<div class="col-xs-4">
 				<p>Select your page</p>
 				<select ng-options="page as page.name for page in pages" 
@@ -79,7 +93,7 @@
 			<div class="panel panel-primary">
 				<div class="panel-heading">Page info</div>
 				<div class="panel-body">
-					<div class="content row">
+					<div class="contentPage row">
 						<div class="col-xs-4">
 							<img ng-src="@{{ selectedPage.picture.data.url}}" alt="" id="imgPage">
 						</div>
@@ -87,9 +101,9 @@
 							<p id="namePage">@{{selectedPage.name}}</p>
 						</div>						
 					</div>
-					<div class="row">
+					<div class="row" ng-if="uploadSuccess">
 						<p>Upload Succes: </p>
-						<div class="products" ng-if="uploadSuccess">
+						<div class="products" >
 							<p ng-repeat="product in products">
 									<a href="https://www.facebook.com/@{{product.id}}" target="_blank">@{{product.name}}</a>
 							</p>
@@ -99,10 +113,8 @@
 				</div>
 			</div>
 		</div>
-
-
 	</div>
-	<div class="container" ng-if="openSubmitLinks">
+	<div class="container-fluid" ng-if="openSubmitLinks">
 		<form ng-submit="submitLink(links)">
 			<div class="form-group">
 				<label for="">Enter Link Shopify</label>
@@ -133,8 +145,10 @@
 		</div>
 	</div>	
 
-</body>
-</html>
+</div>
+@endsection
+
+@section("script")
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.3/angular.min.js"></script>
 <script>
 	var app = angular.module("tool",[]);
@@ -208,3 +222,4 @@
 		}
 	});
 </script>
+@stop
