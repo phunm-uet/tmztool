@@ -27,7 +27,7 @@ class AdsDropShipController extends Controller
         $accessToken = session("accessToken");
         $fb->setToken($accessToken);
         $options1 = ["fields" => "name,id,access_token","limit" => 100];
-        $options2 = ["fields" => "name,id","limit" => 100];
+        $options2 = ["fields" => "name,id,adspixels.limit(50)","limit" => 100];
         $pages = $fb->getEdge("me/accounts",$options1);
         $adAccounts = $fb->getEdge("me/adaccounts",$options2);
     	$niches = Niche::with('Interests')->get();
@@ -71,7 +71,11 @@ class AdsDropShipController extends Controller
         return $link_img;
     }
 
-    // Api get Image Product Link from Product Link
+    /**
+     * Get Link Image
+     * @param  Request $request [description]
+     * @return [string]           url image mac dinh cua product link
+     */
     public function getImageLink(Request $request){
         $link = $request->link;
         $goutteClient = new GoutteClient();
@@ -92,6 +96,11 @@ class AdsDropShipController extends Controller
         return response()->json(["image_link" =>  $link_img]);
     }
 
+    /**
+     * Submit Ads
+     * @param  Request $request [description]
+     * @return [boolean]           
+     */
     public function submitAds(Request $request){
         $userToken = session("accessToken");
         $niche = $request->niche;
@@ -169,7 +178,6 @@ class AdsDropShipController extends Controller
             $form_data = [
                 "campaign_id" => $campaignID,
                 "name" => $interest['name']."- $today $minage-$maxage",
-                "promoted_object" => $promoted_object,
                 "daily_budget" => 500,
                 "optimization_goal" => "OFFSITE_CONVERSIONS",
                 "billing_event" => "IMPRESSIONS",
@@ -179,6 +187,11 @@ class AdsDropShipController extends Controller
                 "status" => "PAUSED",
                 "targeting" => $targeting,
             ];
+            if($request->pixel != null){
+                $pixel_id = $request->pixel['id'];
+                $promoted_object = '{"pixel_id": "'. $pixel_id .'","custom_event_type": "PURCHASE"}';
+                $form_data['promoted_object'] = $promoted_object;
+            }
             $res = $fb->postData("$adaccount_id/adsets",$form_data);
             $adset_id = $res['id'];
             array_push($adsets, $adset_id);

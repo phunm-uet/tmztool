@@ -51,41 +51,63 @@
                   <textarea style="height:135px;" name="description" class="form-control" rows="3" placeholder="Nhập description cho post (lưu ý thêm $link$ vào vị trí muốn chèn link sản phẩm) ..." required="true" ng-model="description" ng-init="description='Order here ➡️️ $link$'"></textarea>
                 </div>
                   
-                <div class="row">
-                  <div class="col-xs-3" id="minage">
-                    <label>Min Age: </label>
-                    <input type="text" required="true" class="form-control" ng-model="minage" ng-init="minage=21" placeholder="21">
-                  </div>
-                  <div class="col-xs-3" id="maxage">
-                    <label>Max Age: </label>
-                    <input type="text" name="maxage" required="true" class="form-control" ng-init="maxage=65" ng-model="maxage" placeholder="65">
-                  </div>
-                  <div class="col-xs-6">
-                    <label for="">Gender: </label><br>
-                    <input type="radio" name="gender" ng-model="gender" value="1" class="flat-red"><label>Nam</label>
-                    <input type="radio" name="gender" ng-model="gender" value="2" class="flat-red"><label>Nữ</label>
-                    <input type="radio" name="gender" ng-model="gender" value="1,2" class="flat-red" checked><label>All</label>
+                
+                <div class="form-group">
+                  <div class="row">
+                      <div class="col-xs-3" id="minage">
+                        <label>Min Age: </label>
+                        <input type="text" required="true" class="form-control" ng-model="minage" ng-init="minage=21" placeholder="21">
+                      </div>
+                      <div class="col-xs-3" id="maxage">
+                        <label>Max Age: </label>
+                        <input type="text" name="maxage" required="true" class="form-control" ng-init="maxage=65" ng-model="maxage" placeholder="65">
+                      </div>
+                      <div class="col-xs-6">
+                        <label for="">Gender: </label><br>
+                        <input type="radio" name="gender" ng-model="gender" value="1" class="flat-red"><label>Nam</label>
+                        <input type="radio" name="gender" ng-model="gender" value="2" class="flat-red"><label>Nữ</label>
+                        <input type="radio" name="gender" ng-model="gender" value="1,2" class="flat-red" checked><label>All</label>
+                      </div>                  
                   </div>
                 </div>
+
+                <div class="form-group input-group">
+                  <div id="location" class="input-group-btn">
+                    <label class="btn bg-olive btn-flat">Country</label>
+                  </div>
+                  <select name="location" class="form-control" data-placeholder="Select Country" ng-model="country">
+                    <option value="US">United States</option>
+                    <option value="UK">United Kingdom</option>
+                    <option value="CA">Canada</option>
+                    <option value="AU">Australia</option>
+                    <option value="NZ">New Zealand</option>
+                    <option value="MX">Mexico</option>
+                    <option value="europe">Europe</option>
+                    <option value="south_america">South America</option>
+                  </select>
+                </div>
+                <div class="row">
+                  <div class="col-lg-5">
+                    <div class="form-group input-group" id="niche">
+                      <div class="input-group-btn">
+                        <label class="btn bg-olive btn-flat">Niche</label>
+                      </div>
+                      <select name="niche" class="form-control" required="true" ng-options="niche as niche.name for niche in niches" ng-model="selectedNiche" ng-change="changeNiche(selectedNiche)"></select>
+                    </div>
+                  </div>
+                  <div class="col-lg-7">
+                    <div class="form-group input-group" id="loaisanpham">
+                      <div class="input-group-btn">
+                        <label class="btn bg-olive btn-flat">Loại Sản Phẩm: </label>
+                      </div>
+                      <select name="type" class="form-control" required="true" ng-options="type as type.product_type for type in types" ng-model="selectedType"></select>
+                    </div>
+                  </div>                    
+                </div>               
           </div>
           <div class="col-md-6">
             <div class="row">
-              <div class="col-lg-5">
-                <div class="form-group input-group" id="niche">
-                  <div class="input-group-btn">
-                    <label class="btn bg-olive btn-flat">Niche</label>
-                  </div>
-                  <select name="niche" class="form-control" required="true" ng-options="niche as niche.name for niche in niches" ng-model="selectedNiche" ng-change="changeNiche(selectedNiche)"></select>
-                </div>
-              </div>
-              <div class="col-lg-7">
-                <div class="form-group input-group" id="loaisanpham">
-                  <div class="input-group-btn">
-                    <label class="btn bg-olive btn-flat">Loại Sản Phẩm: </label>
-                  </div>
-                  <select name="type" class="form-control" required="true" ng-options="type as type.product_type for type in types" ng-model="selectedType"></select>
-                </div>
-              </div>
+
               <div class="col-lg-12">
                 <div class="form-group input-group" id="pageid">
                   <div class="input-group-btn">
@@ -99,9 +121,19 @@
                   <div class="input-group-btn">
                     <label class="btn bg-olive btn-flat">Ad Accounts: </label>
                   </div>
-                  <select class="form-control" ng-options="adaccount as adaccount.name for adaccount in adaccounts" ng-model="selectedAdAccount"></select>
+                  <select class="form-control" ng-options="adaccount as adaccount.name for adaccount in adaccounts" ng-model="selectedAdAccount" ng-change="changeAdAccount()"></select>
                 </div>
-              </div>              
+              </div> 
+            {{-- End ad accounts --}}
+              <div class="col-lg-12">
+                <div class="form-group input-group">
+                  <div class="input-group-btn">
+                    <label class="btn bg-olive btn-flat">Pixels: </label>
+                  </div>
+                  <select class="form-control" ng-options="pixel as pixel.id for pixel in pixels" ng-model="selectedPixel"></select>
+                </div>
+              </div> 
+              {{-- End Pixel --}}
               <div class="col-lg-12">
                 <div class="form-group input-group" id="pageid">
                   <div class="input-group-btn">
@@ -117,7 +149,13 @@
               </div>
               <input type="text" id="linksanpham" class="form-control" ng-model="product_link" placeholder="Nhập link sản phẩm ..." required="true" ng-paste="paste($event.originalEvent)">
             </div>
-            <div class="form-group input-group" id="hinhsanpham">
+
+            <div class="form-group input-group">
+              <label class="radio-inline"><input type="radio" name="optradio" ng-model="optionImage" value="1">Default</label>
+              <label class="radio-inline"><input type="radio" name="optradio" ng-model="optionImage" value="2">Custom</label>           
+            </div>   
+            {{-- End option defaut image product          --}}
+            <div class="form-group input-group" id="hinhsanpham" ng-if="optionImage == 1">
               <div class="input-group-btn">
                 <label class="btn bg-olive btn-flat">Product Image</label>
               </div>
@@ -126,20 +164,14 @@
               <a class="btn btn-default" ng-href="@{{image_link}}" target="_blank"><span class="fa fa-hand-o-right"></span></a>
             </span>
             </div>
-            <div class="form-group input-group">
-              <div id="location" class="input-group-btn">
-                <label class="btn bg-olive btn-flat">Country</label>
+            <div class="form-group input-group" id="hinhsanpham" ng-if="optionImage == 2">
+              <div class="input-group-btn">
+                <label class="btn bg-olive btn-flat">Product Image</label>
               </div>
-              <select name="location" class="form-control" data-placeholder="Select Country" ng-model="country">
-                <option value="US">United States</option>
-                <option value="UK">United Kingdom</option>
-                <option value="CA">Canada</option>
-                <option value="AU">Australia</option>
-                <option value="NZ">New Zealand</option>
-                <option value="MX">Mexico</option>
-                <option value="europe">Europe</option>
-                <option value="south_america">South America</option>
-              </select>
+              <input type="text" name="hinhsanpham" class="form-control" placeholder="Link Image" ng-model="image_link">
+            <span class="input-group-btn">
+              <a class="btn btn-default" ng-href="@{{image_link}}" target="_blank"><span class="fa fa-hand-o-right"></span></a>
+            </span>
             </div>
           </div>
           <div class="clearfix"></div>
