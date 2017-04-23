@@ -40,15 +40,26 @@ Route::group(['prefix' => 'marketing','namespace' => "Marketing"], function() {
     Route::get("/config",['as' => 'config',"uses" => "ConfigController@index"]);
     Route::post("/config",['as' => 'postConfig',"uses" => "ConfigController@setConfig"]);
 
+    // route for product
     Route::get('/product',["as" => "import_fb","uses" => "ProductController@getProduct"]);
     Route::get('api/pages',"ProductController@apiGetPages");
     Route::get('api/product_category','ProductController@apiCategory');
     Route::post('api/submitLinks','ProductController@submitLinks');
     Route::post('api/createcollection','ProductController@creatCollection');
     Route::get('api/getcollection', 'ProductController@getCollection');
+
+    // Manage Page
+    Route::get("pages",["as" => "pages","uses" => "ManagePagesController@index"]);
+    Route::get("page/{id}",['as' => 'page-detail','uses' => 'ManagePagesController@detail']);
     Route::get('/{name?}',"IndexController@index");
 
 });
+
+Route::group(['prefix' => 'admin','namespace' => 'Admin'],function(){
+    Route::get('/', 'IndexController@index');
+    
+});
+
 Route::get('/home', 'HomeController@index');
 
 // Section for api
@@ -58,5 +69,8 @@ Route::group(['prefix' => 'api','namespace' => "Api"], function() {
       Route::get('index', "AdsDropShipController@index");
       Route::post("image_link","AdsDropShipController@getImageLink");
       Route::post("submitAds","AdsDropShipController@submitAds");
+      Route::get('pages','ManagePagesController@getPages');
+      Route::get("getdatas","ManagePagesController@getDatas");
+      Route::get('get-top-posts','ManagePagesController@topPosts');
    });
 });
