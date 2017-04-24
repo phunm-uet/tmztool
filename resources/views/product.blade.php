@@ -30,18 +30,23 @@
 @endsection
 @section('menu')
     <li class="treeview">
-        <a href="/marketing">
+        <a href="./">
             <i class="fa fa-dashboard"></i> <span>Dashboard</span>
         </a>
     </li>
     <li class="treeview active">
       <a href="{{ route("import_fb") }}">
-        <i class="fa fa-upload"></i> <span>Import store FB</span>
+        <i class="fa fa-upload"></i> <span>Tạo collection SP Dropshing</span>
       </a>
     </li>
     <li class="treeview">
       <a href="{{ route("ads") }}">
-        <i class="fa fa-gear"></i> <span>Auto Campaign</span>
+        <i class="fa fa-gear"></i> <span>Tạp Campaign Dropship</span>
+      </a>
+    </li>
+    <li class="treeview">
+      <a href="{{ route("pages") }}">
+        <i class="fa fa-gear"></i> <span>Quản lý page</span>
       </a>
     </li>
 @stop

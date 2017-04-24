@@ -167,7 +167,6 @@ class AdsDropShipController extends Controller
           */
          $adsets = [];
          $ads = [];
-         $promoted_object = '{"pixel_id": "289181604806565","custom_event_type": "PURCHASE"}';
          foreach($arrInterests as $interest){
             $targeting = $interest['targeting'];
             $targeting = json_decode($targeting,true);

@@ -1,7 +1,7 @@
 
 app.controller("likes", function ($scope,$rootScope,$http) {
   $scope.labels = ["", "", "", "", "", "", ""];
-  // $scope.series = ['Tuần trước', 'Tuần này'];
+
   $http.get("/api/marketing/getdatas",{
     params : { id : $rootScope.id ,type : "likes"}
   }).then(function(resp){

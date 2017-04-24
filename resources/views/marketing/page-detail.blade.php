@@ -1,6 +1,7 @@
 @extends('layouts.master')
 @section('css')
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs/dt-1.10.15/datatables.min.css"/>
+<link rel="stylesheet" href="https://unpkg.com/angular-toastr/dist/angular-toastr.css" />  
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.3/angular.min.js"></script>
 @stop
 @section('breadcrumb')
@@ -9,18 +10,23 @@
 
 @section('menu')
     <li class="treeview">
-        <a href="marketing">
+        <a href="../../marketing">
             <i class="fa fa-dashboard"></i> <span>Dashboard</span>
         </a>
     </li>
     <li class="treeview">
       <a href="{{ route("import_fb") }}">
-        <i class="fa fa-upload"></i> <span>Import store FB</span>
+        <i class="fa fa-upload"></i> <span>Tạo collection SP Dropshing</span>
       </a>
     </li>
-    <li class="active treeview">
+    <li class="treeview">
       <a href="{{ route("ads") }}">
-        <i class="fa fa-gear"></i> <span>Auto Campaign</span>
+        <i class="fa fa-gear"></i> <span>Tạp Campaign Dropship</span>
+      </a>
+    </li>
+    <li class="treeview active">
+      <a href="{{ route("pages") }}">
+        <i class="fa fa-gear"></i> <span>Quản lý page</span>
       </a>
     </li>
 @stop
@@ -92,7 +98,7 @@
               <td><a ng-href="https://facebook.com/@{{post.id}}" target="_blank">https://facebook.com/@{{post.id}}</a></td>
               <td>@{{post.reactions.summary.total_count}}</td>
               <td>@{{post.insights.data["0"].values["0"].value}}</td>
-              <td><button type="button" class="btn btn-success"><i class="fa fa-plus" aria-hidden="true"> </i>Campaign</button></td>
+              <td><button type="button" class="btn btn-success" ng-click="openModal(post.id)"><i class="fa fa-plus" aria-hidden="true"> </i>Campaign</button></td>
             </tr>
           </tbody>
         </table>      
@@ -101,28 +107,55 @@
     <div class="box-footer" style="text-align: center;">
       <button type="button" class="btn btn-info">View More</button>
     </div>
-  </div>
-</div>
 
-<div class="modal fade" id="campaign">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-        <h4 class="modal-title">Tạo quảng cáo </h4>
-      </div>
-      <div class="modal-body">
-        <form action="">
-          <div class="row">
-              <div class="col-lg-5">
-                    <div class="form-group input-group" id="niche">
-                      <div class="input-group-btn">
-                        <label class="btn bg-olive btn-flat">Niche</label>
-                      </div>
-                      <select name="niche" class="form-control" required="true" ng-options="niche as niche.name for niche in niches" ng-model="selectedNiche" ng-change="changeNiche(selectedNiche)"></select>
-                    </div>
-              </div>            
+    <div class="modal fade" id="campaign">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">Tạo quảng cáo </h4>
           </div>
+          <div class="modal-body">
+            <form ng-submit="taocampaign()">
+              <div class="row">
+              <div class="col-xs-12">
+                <div class="form-group">
+                    <label>Ten Campaign</label>
+                    <input type="text" class="form-control" required="true" ng-model="name_campaign">
+                </div>                
+              </div>
+              </div>
+
+              <div class="row">
+                  <div class="col-lg-5">
+                        <div class="form-group input-group">
+                          <div class="input-group-btn">
+                            <label class="btn bg-olive btn-flat">Niche</label>
+                          </div>
+                          <select name="niche" class="form-control" required="true" ng-options="niche as niche.name for niche in niches" ng-model="selectedNiche" ng-change="changeNiche(selectedNiche)"></select>
+                        </div>
+                  </div>
+                  <div class="col-lg-7">
+                    <div class="form-group input-group">
+                            <div class="input-group-btn">
+                              <label class="btn bg-olive btn-flat">Country</label>
+                            </div>
+                            <select name="location" class="form-control" data-placeholder="Select Country" ng-model="country">
+                              <option value="US">United States</option>
+                              <option value="UK">United Kingdom</option>
+                              <option value="CA">Canada</option>
+                              <option value="AU">Australia</option>
+                              <option value="NZ">New Zealand</option>
+                              <option value="MX">Mexico</option>
+                              <option value="europe">Europe</option>
+                              <option value="south_america">South America</option>
+                            </select>
+                    </div>                 
+                  </div>
+              </div>
+              {{-- Niche and Country --}}
+
+              {{-- Gioi tinh do tuoi --}}
                 <div class="form-group">
                   <div class="row">
                       <div class="col-xs-3" id="minage">
@@ -139,18 +172,55 @@
                         <input type="radio" name="gender" ng-model="gender" value="2" class="flat-red"><label>Nữ</label>
                         <input type="radio" name="gender" ng-model="gender" value="1,2" class="flat-red" checked><label>All</label>
                       </div>                  
+                </div>            
+              </div>
+              {{-- End gioi tinh do tuoi --}}
+
+              {{-- Tk Ads va Pixel --}}
+              <div class="row">
+                <div class="col-lg-6">
+                  <div class="form-group input-group">
+                    <div class="input-group-btn">
+                      <label class="btn bg-olive btn-flat">TK ADS</label>
+                    </div>
+                    <select class="form-control" required="true" ng-options="adaccount as adaccount.name for adaccount in adaccounts" ng-model="selectedAdAccount" ng-change="changeAdAccount(selectedAdAccount)"></select>
                   </div>
                 </div>
-
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
+                <div class="col-lg-6">
+                  <div class="form-group input-group">
+                    <div class="input-group-btn">
+                      <label class="btn bg-olive btn-flat">Pixels: </label>
+                    </div>
+                    <select class="form-control" ng-options="pixel as pixel.id for pixel in pixels" ng-model="selectedPixel"></select>
+                  </div>
+                </div> 
+              </div>
+      
+            {{-- Interest --}}
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="form-group input-group" id="pageid">
+                  <div class="input-group-btn">
+                    <label class="btn bg-olive btn-flat">Interests: </label>
+                  </div>
+                  <select class="form-control" required="true" multiple="true" ng-options="interest as interest.name for interest in interests" ng-model="selectedInterest"></select>
+                </div>
+              </div>              
+            </div>
+              <button type="submit" class="btn btn-primary btn-block">Tao Campaign</button>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
       </div>
     </div>
+
   </div>
 </div>
+
+
 
 @stop
 @section('script')
@@ -159,9 +229,10 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.2.0/Chart.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-datatables/0.6.1/angular-datatables.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-sanitize.js"></script>
+  <script src="https://unpkg.com/angular-toastr/dist/angular-toastr.tpls.js"></script>
 <script src="{{ asset('js/angular/angular-chart.min.js') }}"></script>
 <script>
-var app = angular.module("page-detail", ["chart.js"]);
+var app = angular.module("page-detail", ["chart.js","toastr"]);
 </script>
 <script src="{{ asset('js/angular/likes.js')}}"></script>
 <script src="{{ asset('js/angular/reach.js')}}"></script>

@@ -17,6 +17,7 @@ class CreateInterestsTable extends Migration
             $table->increments('id');
             $table->string('name');
             $table->string("targeting");
+            $table->string("num_audience");
             $table->integer("niche_id")->unsigned();
             $table->foreign('niche_id')->references('id')->on('niches')->onDelete('cascade');
             $table->timestamps();
