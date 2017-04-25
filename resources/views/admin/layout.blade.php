@@ -6,12 +6,12 @@
         </a>
     </li>
     <li class="treeview">
-      <a href="{{ route("import_fb") }}">
+      <a href="interest">
         <i class="fa fa-upload"></i> <span>Quản lý interest</span>
       </a>
     </li>
     <li class="treeview">
-      <a href="{{ route("ads") }}">
+      <a href="niche">
         <i class="fa fa-gear"></i> <span>Quản lý niche</span>
       </a>
     </li>

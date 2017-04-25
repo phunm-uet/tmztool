@@ -16,10 +16,13 @@ class InterestController extends Controller
     	if(method_exists($this,$action)){
     		return $this->$action($request);
     	} else {
-    		return $this->list($request);
+    		return redirect()->route('interest-home');
     	}
     }
-
+    /**
+     * Function show list Interest in db
+     * @return [view]   view list interest
+     */
     public function list(Request $request)
     {
     	$niches = Niche::all();
@@ -27,6 +30,11 @@ class InterestController extends Controller
     	return view('admin.interest.interest')->with(['interests' => $interests,'niches' => $niches]);
     }
 
+    /**
+     * function them interest
+     * @param Request $request [description]
+     */
+    
     public function add(Request $request)
     {
     	if($request->isMethod('post')){
@@ -47,14 +55,42 @@ class InterestController extends Controller
     	}
     }
 
+    /**
+     * Function edit interest
+     * @param  Request $request [description]
+     * @return [type]           [description]
+     */
     public function edit(Request $request)
     {
+    	$id = $request->id;
+    	$interest = Interest::find($id);
+    	$niches = Niche::all();
+    	return view("admin.interest.edit")->with(['interest' => $interest,'niches' => $niches]);
+    }
 
+    /**
+     * Update Interest
+     * @return [json]
+     */
+    public function update(Request $request)
+    {
+    	$id = $request->id;
+    	$interest = Interest::find($id);
+    	$interest->fill($request->all());
+    	if($interest->save())
+    	{
+    		$request->session()->flash("success",1);
+    	} else {
+    		$request->session()->flash("fail",1);
+    	}
+    	
+    	return redirect()->back();
     }
 
     public function delete(Request $request)
     {
     	$id = $request->id;
+
     	$interest = Interest::find($id);
     	$interest->delete();
     }
