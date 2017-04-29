@@ -31,7 +31,7 @@
 					</div>
 					<div class="form-group">
 						<label>Niches</label>
-						<select class="form-control" name="niche_id">
+						<select class="form-control select2" name="niche_id">
 							@foreach($niches as $niche)
 								@if($niche->id == $interest->niche->id)
 									<option selected="true" value="{{$niche->id}}">{{$niche->name}}</option>
@@ -42,6 +42,24 @@
 							@endforeach
 						</select>
 					</div>
+					<div class="form-group">
+						<label>Pages</label>
+						<select class="form-control select2" name="pages[]" multiple="multiple">
+						@php
+							$page_id_arr = [];
+							foreach($interest->pages as $page)
+							{
+								array_push($page_id_arr, $page->page_id);
+							}	
+						@endphp
+							@foreach($pages as $page)
+								@if(in_array($page->page_id,$page_id_arr))
+									<option value="{{$page->id}}" selected="selected">{{$page->page_name}}</option>
+								@endif
+								<option value="{{$page->id}}">{{$page->page_name}}</option>
+							@endforeach
+						</select>
+					</div>					
 					<div class="form-group">
 						<label>Nhập Interest</label>
 						<textarea name="targeting" id="targeting" class="form-control" rows="5" required="required">{{$interest->targeting}}</textarea>
@@ -57,5 +75,10 @@
 
 @stop
 @section('script')
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
+<script>
+	$(document).ready(function() {
+		$(".select2").select2();
+	});
+</script>
 @stop

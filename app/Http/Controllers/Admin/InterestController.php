@@ -8,7 +8,7 @@ use App\Niche;
 use App\Interest;
 use App\Page;
 use Session;
-
+use DB;
 class InterestController extends Controller
 {
     public function index(Request $request)
@@ -40,13 +40,21 @@ class InterestController extends Controller
     public function add(Request $request)
     {
     	if($request->isMethod('post')){
+            $pages = $request->pages;
 	    	$interest = new Interest([
 	    			'name' => $request->name_interest,
 	    			'num_audience' => $request->num_audience,
 	    			'niche_id' => $request->niche,
 	    			'targeting' =>$request->targeting
 	    		]);
+
+
 	    	if($interest->save()){
+                $interest_id = $interest->id;
+                foreach($pages as $page)
+                {
+                    Interest::getInterestPage()->insert(['page_id' => $page,'interest_id' => $interest_id]);
+                }
 	    		$request->session()->flash('success', '1');
 	    	} else {
 	    		$request->session()->flash('fail', '1');
@@ -67,7 +75,8 @@ class InterestController extends Controller
     	$id = $request->id;
     	$interest = Interest::find($id);
     	$niches = Niche::all();
-    	return view("admin.interest.edit")->with(['interest' => $interest,'niches' => $niches]);
+        $pages = Page::all();
+    	return view("admin.interest.edit")->with(['interest' => $interest,'niches' => $niches,'pages' => $pages]);
     }
 
     /**
@@ -78,7 +87,13 @@ class InterestController extends Controller
     {
     	$id = $request->id;
     	$interest = Interest::find($id);
-    	$interest->fill($request->all());
+        $interest->niche_id = $request->niche_id;
+        Interest::getInterestPage()->where('interest_id',$id)->delete();
+        $pages = $request->pages;
+        foreach($pages as $page)
+        {
+            Interest::getInterestPage()->insert(['page_id' => $page,'interest_id' => $id]);
+        }
     	if($interest->save())
     	{
     		$request->session()->flash("success",1);
