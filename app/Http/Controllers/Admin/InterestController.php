@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Niche;
 use App\Interest;
+use App\Page;
 use Session;
 
 class InterestController extends Controller
@@ -27,7 +28,8 @@ class InterestController extends Controller
     {
     	$niches = Niche::all();
     	$interests = Interest::all();
-    	return view('admin.interest.interest')->with(['interests' => $interests,'niches' => $niches]);
+        $pages = Page::all();
+    	return view('admin.interest.interest')->with(['interests' => $interests,'niches' => $niches,'pages' => $pages]);
     }
 
     /**

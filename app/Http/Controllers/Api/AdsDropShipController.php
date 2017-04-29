@@ -60,7 +60,6 @@ class AdsDropShipController extends Controller
      */
     public function getImageTriple($goutteClient,$link){
         $crawler = $goutteClient->request('GET', $link);
-        // dd($goutteClient->getRequest()->getUri());
         $link_img = "https:".$crawler->filter('.featured-image img')->eq(0)->extract('src')[0];
         return $link_img;
     }

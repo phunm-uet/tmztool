@@ -15,4 +15,14 @@
         <i class="fa fa-gear"></i> <span>Quản lý niche</span>
       </a>
     </li>
+    <li class="treeview">
+      <a href="page">
+        <i class="fa fa-gear"></i> <span>Quản lý Page</span>
+      </a>
+    </li> 
+    <li class="treeview">
+      <a href="config">
+        <i class="fa fa-gear"></i> <span>Cài đặt hệ thống</span>
+      </a>
+    </li>       
 @stop

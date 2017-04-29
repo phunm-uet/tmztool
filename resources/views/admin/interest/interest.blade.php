@@ -5,7 +5,7 @@
 <div class="container-fluid">
 	<div class="box box-success">
 		<div class="box-header">
-			<h3>Quản lý Interest</h3>
+			<h3>Quản lý Interests</h3>
 		</div>
 		<div class="box-body">
 
@@ -80,12 +80,20 @@
 					</div>
 					<div class="form-group">
 						<label>Niches</label>
-						<select class="form-control" name="niche">
+						<select class="form-control select2" name="niche" style="width: 100%">
 							@foreach($niches as $niche)
 								<option value="{{$niche->id}}">{{$niche->name}}</option>
 							@endforeach
 						</select>
 					</div>
+					<div class="form-group">
+						<label>Pages</label>
+						<select class="form-control select2" name="pages[]" multiple="multiple" style="width: 100%">
+							@foreach($pages as $page)
+								<option value="{{$page->id}}">{{$page->page_name}}</option>
+							@endforeach
+						</select>
+					</div>					
 					<div class="form-group">
 						<label>Nhập Interest</label>
 						<textarea name="targeting" id="targeting" class="form-control" rows="5" required="required"></textarea>
@@ -101,6 +109,7 @@
 </div>
 @stop
 @section('script')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
 	<script>
 
 		// Handle function xoa
@@ -115,6 +124,8 @@
 		}	
 
 		$(document).ready(function() {
+
+			$(".select2").select2();
 			// Handle button add interest
 			$("#btn_add_interest").on("click",function(){
 				$("#modal_add_interest").modal();

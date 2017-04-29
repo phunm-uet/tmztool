@@ -58,6 +58,10 @@ Route::group(['prefix' => 'admin','namespace' => 'Admin'],function(){
     Route::any("interest/{action_name?}","InterestController@index");
     Route::get('niche',['as' => 'niche-home','uses' => 'NicheController@list']);
     Route::any('niche/{action_name?}',"NicheController@index");
+    Route::get('page',['as' => 'page-home','uses' => 'PageController@list']);
+    Route::any('page/{action_name?}',['uses' => 'PageController@index']);
+    Route::any('niche/{action_name?}',"NicheController@index");    
+    Route::any('/config',"ConfigController@index");
 });
 
 Route::get('/home', 'HomeController@index');

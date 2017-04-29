@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateSourcesTable extends Migration
+class CreateNichePageTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,10 @@ class CreateSourcesTable extends Migration
      */
     public function up()
     {
-        Schema::create('sources', function (Blueprint $table) {
+        Schema::create('niche_page', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('name');
-            $table->integer('level');
+            $table->integer('niche_id')->unsigned();
+            $table->integer('page_id')->unsigned();
             $table->timestamps();
         });
     }
@@ -28,6 +28,8 @@ class CreateSourcesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('sources');
+        Schema::table('niche_page', function (Blueprint $table) {
+            //
+        });
     }
 }

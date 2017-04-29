@@ -13,4 +13,9 @@ class Interest extends Model
     {
     	return $this->belongsTo('App\Niche',"niche_id");
     }
+
+    public function Pages()
+    {
+    	return $this->belongsToMany('App\Page');
+    }
 }

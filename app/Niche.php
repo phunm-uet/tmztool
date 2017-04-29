@@ -18,4 +18,9 @@ class Niche extends Model
     {
     	return $this->hasMany('App\Interest');
     }
+
+    public function pages()
+    {
+        return $this->belongsToMany('App\Page');
+    }
 }
