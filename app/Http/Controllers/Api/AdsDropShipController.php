@@ -95,6 +95,20 @@ class AdsDropShipController extends Controller
         return response()->json(["image_link" =>  $link_img]);
     }
 
+    public function getCountry(Request $request)
+    {
+        $q = $request->q;
+        $accessToken = $request->session()->get('accessToken');
+        $fb = new FacebookController();
+        $fb->setToken($accessToken);
+        $result = [];
+        $kq = $fb->getEdge("search",['q' => $q,'type' => 'adcountry']);
+        foreach($kq as $k){
+            $result[] = [$k['country_code'] => $k['name']];
+        }
+        return response()->json($kq);
+    }
+
     /**
      * Submit Ads
      * @param  Request $request [description]

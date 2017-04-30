@@ -80,15 +80,7 @@
                   <div id="location" class="input-group-btn">
                     <label class="btn bg-olive btn-flat">Country</label>
                   </div>
-                  <select name="location" class="form-control" data-placeholder="Select Country" ng-model="country">
-                    <option value="US">United States</option>
-                    <option value="UK">United Kingdom</option>
-                    <option value="CA">Canada</option>
-                    <option value="AU">Australia</option>
-                    <option value="NZ">New Zealand</option>
-                    <option value="MX">Mexico</option>
-                    <option value="europe">Europe</option>
-                    <option value="south_america">South America</option>
+                  <select name="location" class="form-control" data-placeholder="Select Country" ng-model="country" id="country">
                   </select>
                 </div>
                 <div class="row">
@@ -144,7 +136,7 @@
                   <div class="input-group-btn">
                     <label class="btn bg-olive btn-flat">Interests: </label>
                   </div>
-                  <select name="interest" class="form-control" required="true" multiple="true" ng-options="interest as interest.name for interest in interests" ng-model="selectedInterest"></select>
+                  <select name="interest" class="form-control select2" required="true" multiple="true" ng-options="interest as interest.name for interest in interests" ng-model="selectedInterest"></select>
                 </div>
               </div>              
             </div>
@@ -170,13 +162,7 @@
             </span>
             </div>
             <div class="form-group input-group" id="hinhsanpham" ng-if="optionImage == 2">
-              <div class="input-group-btn">
-                <label class="btn bg-olive btn-flat">Product Image</label>
-              </div>
-              <input type="text" name="hinhsanpham" class="form-control" placeholder="Link Image" ng-model="image_link">
-            <span class="input-group-btn">
-              <a class="btn btn-default" ng-href="@{{image_link}}" target="_blank"><span class="fa fa-hand-o-right"></span></a>
-            </span>
+                <input type="file" class="form-control-file" id="exampleInputFile" aria-describedby="fileHelp" ng-model="image" required="true"  onchange="angular.element(this).scope().uploadImage(this.file)">
             </div>
           </div>
           <div class="clearfix"></div>
@@ -223,6 +209,26 @@
 <script>
   $(document).ready(function() {
     $(".select2").select2();
+    $("#country").select2({
+      ajax : {
+        url : "http://tmztool.com/api/marketing/country",
+        placeholder : "Select country",
+        dataType : 'json',
+        delay : 250,
+        data : function(params){
+          return {
+            q : params.term
+          }
+        },
+        processResults : function(data){
+          return {
+            results : $.map(data, function(val, l) {
+              return {id:val.country_code,text:val.name};
+            })
+          }
+        },
+      }
+    });
   });
 </script>
 @stop

@@ -1,6 +1,15 @@
 
 app.controller("engagement", function ($scope,$rootScope,$http) {
-  $scope.labels = ["", "", "", "", "", "", ""];
+  var dates = [];
+  var d = new Date();
+  dates.push(d.toLocaleDateString());
+  for(i = 0; i < 6; i++){
+    d.setDate(d.getDate()-1);
+    dates.push(d.toLocaleDateString());
+  }
+  dates = dates.reverse();
+  
+  $scope.labels = dates;
   $http.get("/api/marketing/getdatas",{
     params : { id : $rootScope.id ,type : "engagement"}
   }).then(function(resp){

@@ -28,7 +28,7 @@ Auth::routes();
 /**
  * Route cho marketing
  */
-Route::group(['prefix' => 'marketing','namespace' => "Marketing"], function() {
+Route::group(['prefix' => 'marketing','namespace' => "Marketing","middleware" => ['auth','marketing']], function() {
 
     Route::get("/import_fb",['as' => 'import_fb',"uses" => "AutoAdsController@import_fb"]);
     Route::get("/ads",['as' => 'ads',"uses" => "AutoAdsController@ads","middleware" => "tokenfb"]);
@@ -42,7 +42,6 @@ Route::group(['prefix' => 'marketing','namespace' => "Marketing"], function() {
     Route::post('api/submitLinks','ProductController@submitLinks');
     Route::post('api/createcollection','ProductController@creatCollection');
     Route::get('api/getcollection', 'ProductController@getCollection');
-
     // Manage Page
     Route::get("pages",["as" => "pages","uses" => "ManagePagesController@index","middleware" => "tokenfb"]);
     Route::get("page/{id}",['as' => 'page-detail','uses' => 'ManagePagesController@detail',"middleware" => "tokenfb"]);
@@ -52,7 +51,7 @@ Route::group(['prefix' => 'marketing','namespace' => "Marketing"], function() {
 
 
 // Route for admin
-Route::group(['prefix' => 'admin','namespace' => 'Admin'],function(){
+Route::group(['prefix' => 'admin','namespace' => 'Admin','middleware' => ['auth','admin']],function(){
     Route::get('/', 'IndexController@index');
     Route::get("interest",['as' => 'interest-home','uses' => "InterestController@list"]);
     Route::any("interest/{action_name?}","InterestController@index");
@@ -67,7 +66,7 @@ Route::group(['prefix' => 'admin','namespace' => 'Admin'],function(){
 Route::get('/home', 'HomeController@index');
 
 // Section for api
-Route::group(['prefix' => 'api','namespace' => "Api"], function() {
+Route::group(['prefix' => 'api','namespace' => "Api", 'middleware' => 'auth'], function() {
 	// API for marketing department
    Route::group(['prefix' => 'marketing'], function() {
       Route::get('index', "AdsDropShipController@index");
@@ -78,5 +77,6 @@ Route::group(['prefix' => 'api','namespace' => "Api"], function() {
       Route::get('get-top-posts','ManagePagesController@topPosts');
       Route::get('thong-so-ads','ManagePagesController@getDataForSetAds');
       Route::post("sbAds",'ManagePagesController@submitAds');
+      Route::get('country',"AdsDropShipController@getCountry");
    });
 });

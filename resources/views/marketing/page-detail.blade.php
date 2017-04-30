@@ -3,6 +3,25 @@
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs/dt-1.10.15/datatables.min.css"/>
 <link rel="stylesheet" href="https://unpkg.com/angular-toastr/dist/angular-toastr.css" />  
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.3/angular.min.js"></script>
+<style>
+  .blue{
+    background-color: rgba(151,187,205,1);
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+  }
+
+  .grey{
+    background-color: rgba(220,220,220,1);
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+  } 
+
+  .note {
+    margin-bottom: 10px;
+  }
+</style>
 @stop
 @section('breadcrumb')
     Page Detail
@@ -39,6 +58,10 @@
     <div class="panel panel-default">
       <div class="panel-heading">Page Likes</div>
       <div class="panel-body">
+      <div class="note">
+        <div class="blue"></div>  Tuần này
+        <div class="grey"></div>  Tuần trước
+      </div>
           <canvas id="line" class="chart chart-line" chart-data="data"
             chart-labels="labels" chart-series="series" chart-options="options"
             chart-dataset-override="datasetOverride" chart-click="onClick">
@@ -51,6 +74,10 @@
     <div class="panel panel-default">
       <div class="panel-heading">Page Reach</div>
       <div class="panel-body">
+      <div class="note">
+        <div class="blue"></div>  Tuần này
+        <div class="grey"></div>  Tuần trước
+      </div>      
           <canvas id="line" class="chart chart-line" chart-data="data"
             chart-labels="labels" chart-series="series" chart-options="options"
             chart-dataset-override="datasetOverride" chart-click="onClick">
@@ -64,6 +91,10 @@
     <div class="panel panel-default">
       <div class="panel-heading">Page Engagement</div>
       <div class="panel-body">
+      <div class="note">
+        <div class="blue"></div>  Tuần này
+        <div class="grey"></div>  Tuần trước
+      </div>      
           <canvas id="line" class="chart chart-line" chart-data="data"
             chart-labels="labels" chart-series="series" chart-options="options"
             chart-dataset-override="datasetOverride" chart-click="onClick">

@@ -60,6 +60,10 @@ app.controller("adsController",function($http,$scope,HOST,toastr){
 	  	
 	  	
 	  }
+
+	  $scope.uploadImage = function(image){
+	  	console.log(image);
+	  }
 	  // Create Campaign
 	 $scope.createCampaign = function(){
 	 	$scope.loading = true;
