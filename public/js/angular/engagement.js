@@ -10,7 +10,7 @@ app.controller("engagement", function ($scope,$rootScope,$http) {
   dates = dates.reverse();
   
   $scope.labels = dates;
-  $http.get("/api/marketing/getdatas",{
+  $http.get("http://toanvo.com/fbtooltmz/public/api/marketing/getdatas",{
     params : { id : $rootScope.id ,type : "engagement"}
   }).then(function(resp){
     

@@ -8,7 +8,8 @@ use App\Http\Controllers\Marketing\FacebookController;
 use GuzzleHttp\Client;
 use Carbon\Carbon;
 use App\Niche;
-
+use App\Interest;
+use App\AdsRunning;
 class ManagePagesController extends Controller
 {
     const PAGE_FAN_ADDS = "page_fan_adds";
@@ -21,7 +22,7 @@ class ManagePagesController extends Controller
     public function getPages()
     {
         $fb = new FacebookController();
-        $accessToken = session("accessToken");
+        $accessToken = session("access_token");
         $fb->setToken($accessToken); 
         $options = ["fields" => "id,fan_count,link,name,picture{url}","limit" => 200];
         $pages = $fb->getEdge("me/accounts",$options);
@@ -29,14 +30,14 @@ class ManagePagesController extends Controller
     }
 
     /**
-     * Get data 2 wwek
+     * Get data current week,and last week
      * @param  Request $request [description]
      * @return [type]           [description]
      */
     public function getDatas(Request $request)
     {
         $fb = new FacebookController();
-        $accessToken = session("accessToken");
+        $accessToken = session("access_token");
         $fb->setToken($accessToken);
         $type = $request->type;
         $id = $request->id;
@@ -62,26 +63,35 @@ class ManagePagesController extends Controller
         return response()->json(["week1" => $week1,"week2" => $week2]);
     }
 
+    /**
+     * Lay thong tin 10 post moi nhat cua fanpage
+     * @param  Request $request [description]
+     * @return [type]           [description]
+     */
     public function topPosts(Request $request)
     {
         $fb = new FacebookController();
-        $accessToken = session("accessToken");
+        $accessToken = session("access_token");
         $fb->setToken($accessToken);        
         $id = $request->id;
         $options = [
-            "fields" => "insights.metric(post_impressions_unique),reactions.limit(1).summary(true),picture",
+            "fields" => "insights.metric(post_impressions_unique),reactions.limit(1).summary(true),picture,comments.limit(1).summary(true),shares,created_time",
             "limit" => 10
         ];
         $data = $fb->getEdge("$id/posts/",$options);
         return response()->json($data);
     }
-
+    /**
+     * Lay thong tin quang cao tu fb
+     * @param  Request $request [description]
+     * @return [json]   thong so quang cao fb
+     */
     public function getDataForSetAds(Request $request)
     {
         $fb = new FacebookController();
-        $accessToken = session("accessToken");
+        $accessToken = session("access_token");
         $fb->setToken($accessToken);
-        $options = ["fields" => "name,id,adspixels.limit(50)","limit" => 100];
+        $options = ["fields" => "name,id,adspixels.limit(50){name}","limit" => 100];
         $adAccounts = $fb->getEdge("me/adaccounts",$options);
         $niches = Niche::with('Interests')->get();
         $arrResponse = [
@@ -92,9 +102,13 @@ class ManagePagesController extends Controller
         return response()->json($arrResponse);
     }
 
-
+    /**
+     * Tao campaign trong detail page
+     * @param  Request $request [description]
+     * @return [type]           [description]
+     */
     public function submitAds(Request $request){
-        $userToken = session("accessToken");
+        $userToken = session("access_token");
         $niche = $request->niche;
         $country = $request->country;
         $arrInterests = $request->interest;
@@ -102,17 +116,21 @@ class ManagePagesController extends Controller
         $maxage = $request->maxage;
         $post_id = $request->post_id;
         $adaccount_id = $request->ad_account['id'];
+        $typeAds = $request->typeAds;
+        $budget = $request->budget;
+        $budget = (int)($budget) * 100;
+        $pageId = $request->id;;
         $fb = new FacebookController();
 
          /**
-          * Second create Ads Campaign
+          *  Create Ads Campaign
           */
          $today = Carbon::now()->toDateString();
          $campaignName = $request->name_campaign;
          $fb->setToken($userToken);
          $form_data = [
             "name" => $campaignName,
-            "objective" => "CONVERSIONS",
+            "objective" => $typeAds,
             "status" => "PAUSED"
          ];
          $res = $fb->postData("$adaccount_id/campaigns",$form_data);
@@ -128,7 +146,6 @@ class ManagePagesController extends Controller
          
          $form_data = [
             "object_story_id" => $post_id,
-            "url_tags" => "utm_source=sma"
          ];
 
          $res = $fb->postData("$adaccount_id/adcreatives",$form_data);
@@ -139,7 +156,8 @@ class ManagePagesController extends Controller
           */
          $adsets = [];
          $ads = [];
-         foreach($arrInterests as $interest){
+         foreach($arrInterests as $interest_id){
+            $interest = Interest::find($interest_id);
             $targeting = $interest['targeting'];
             $targeting = json_decode($targeting,true);
             $targeting['age_max'] = $maxage;
@@ -149,8 +167,7 @@ class ManagePagesController extends Controller
             $form_data = [
                 "campaign_id" => $campaignID,
                 "name" => $interest['name']."- $today $minage-$maxage",
-                "daily_budget" => 500,
-                "optimization_goal" => "OFFSITE_CONVERSIONS",
+                "daily_budget" => $budget,
                 "billing_event" => "IMPRESSIONS",
                 "is_autobid" => TRUE,
                 "attribution_window_days" => 1,
@@ -158,32 +175,86 @@ class ManagePagesController extends Controller
                 "status" => "PAUSED",
                 "targeting" => $targeting,
             ];
-            if($request->pixel != null){
-                $pixel_id = $request->pixel['id'];
-                $promoted_object = '{"pixel_id": "'. $pixel_id .'","custom_event_type": "PURCHASE"}';
-                $form_data['promoted_object'] = $promoted_object;
+            if($typeAds == "CONVERSIONS")
+            {
+              if($request->pixel != null){
+                  $pixel_id = $request->pixel['id'];
+                  $promoted_object = '{"pixel_id": "'. $pixel_id .'","custom_event_type": "PURCHASE"}';
+                  $form_data['promoted_object'] = $promoted_object;
+                  $form_data['optimization_goal'] = "OFFSITE_CONVERSIONS";
+                  // $form_data['targeting_optimization'] = "NONE";
+              }              
+            } else {
+
+              if($request->pixel != null){
+                  $form_data['optimization_goal'] = "POST_ENGAGEMENT";
+              }  
             }
             $res = $fb->postData("$adaccount_id/adsets",$form_data);
             $adset_id = $res['id'];
             array_push($adsets, $adset_id);
             $creativeAds = [
-                "creative_id" => $adcreative_id
+                "creative_id" => $adcreative_id,
+
             ];
             $creativeAds = json_encode($creativeAds);
+            $tracking_specs = "[{'action.type' : 'offsite_conversion','fb_pixel' : '".$request->pixel['id']."'}]";            
             $form_ads = [
                 "adset_id" => $adset_id,
                 "creative" => $creativeAds,
-                "name" => $today
+                "name" => $today,
+                "tracking_specs" => $tracking_specs
             ];
             $res = $fb->postData("$adaccount_id/ads",$form_ads);
             array_push($ads, $res['id']);
          }
-
+         $adsRunning = new AdsRunning;
+         $adsRunning->campaign_id = $campaignID;
+         $adsRunning->campaign_name = $campaignName;
+         $adsRunning->post_id = $post_id;
+         $adsRunning->page_id = $pageId;
+          $adsRunning->save();
          $response = [
             "campaign" => $campaignID,
             "adsets" => $adsets,
             "ads" => $ads
          ];
          return response()->json($response);
+    }
+
+    public function getCampaignRuning(Request $request)
+    {
+      $pageId = $request->id;
+      $campaigns = AdsRunning::where("page_id",$pageId)->get();
+      return response()->json($campaigns);
+    }
+
+    public function getCampaignInfo(Request $request)
+    {
+        $fb = new FacebookController();
+        $accessToken = session("access_token");
+        $fb->setToken($accessToken);        
+        $campaign_id = $request->campaign_id;
+        $campaign = AdsRunning::where("campaign_id",$campaign_id)->first();
+        $page_id = $campaign->post_id;
+        // dd($page_id);
+        $campaignOptions = [
+            "date_preset" => "lifetime",
+            "fields" => "cost_per_inline_post_engagement,spend,cpc,cpm"
+        ];
+        $campaignInfos = $fb->getEdge("$campaign_id/insights",$campaignOptions);
+        $campaignInfos = $campaignInfos[0];
+        $postOptions = ['fields' => 'reactions.limit(1).summary(true),picture,comments.limit(1).summary(true),shares,full_picture'];
+        $postInfos = $fb->getNode("$page_id",$postOptions);
+        return response()->json(['campaign' => $campaignInfos,'post' => $postInfos]);
+    }
+
+
+    public function pauseAds(Request $request)
+    {
+      $campaignId = $request->campaign_id;
+      $fb = new FacebookController();
+      $fb->postData($campaignId,['status' => "PAUSED"]);
+      return response()->json(['success' => 1]);
     }
 }

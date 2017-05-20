@@ -1,3 +1,6 @@
+@php
+
+@endphp
 @extends('layouts.master')
 @section('breadcrumb')
     Import FB store
@@ -30,7 +33,7 @@
 @endsection
 @section('menu')
     <li class="treeview">
-        <a href="./">
+        <a href="../marketing">
             <i class="fa fa-dashboard"></i> <span>Dashboard</span>
         </a>
     </li>
@@ -49,6 +52,17 @@
         <i class="fa fa-gear"></i> <span>Quản lý page</span>
       </a>
     </li>
+
+    @if ( Auth::user()->department->slug == "admin")
+      <li>
+        <li class="header">Admin</li>
+      </li>    
+      <li class="treeview">
+        <a href="{{route('admin-home')}}">
+          <i class="fa fa-gear"></i> <span>Chuyển qua Admin</span>
+        </a>
+      </li>    
+    @endif     
 @stop
 @section('content')
 <div  ng-app="tool" ng-controller="toolCtrl">
@@ -59,12 +73,12 @@
 		<div class="col-xs-4">
 				<p>Select your page</p>
 				<select ng-options="page as page.name for page in pages" 
-				   ng-model="item" ng-change="changePage(item)" class="form-control"></select>
+				   ng-model="item" ng-change="changePage(item)" class="form-control" id="pages"></select>
 		<div class="row" style="margin-top: 10px">
 			<div class="col-xs-12" ng-if="selectPage">
 				<p>Select Product Category</p>
 				<select ng-options="category as category.name for category in prodcutCategory" 
-				   ng-model="item" ng-change="chanegCategory(item)" class="form-control"></select>				
+				   ng-model="category" ng-change="chanegCategory(category)" class="form-control"></select>				
 			</div>
 			<div class="col-xs-12" ng-if="selectPage == false">
 				<p>Nothing product Category</p>			
@@ -72,26 +86,25 @@
 		</div>
 		<div class="row" style="margin-top: 10px" ng-if="openSelectCollection">
 			<div class="col-xs-12" ng-if="selectPage">
-			<label for="store_id">Enter Store ID</label>
+			<label for="store_id">Store ID</label>
 				<div class="form-inline">
 					<div class="form-group">
-					<input type="text" class="form-control" required="required" ng-model="store_id">
+					<input type="text" class="form-control" required="required" ng-model="store_id" ng-disabled="store_disable">
 					<button type="button" id="get-collection" class="btn btn-primary" ng-click="getCollection(store_id)">Get Collection</button>
 					</div>
 				</div>
 			</div>
-			<div class="row">
-				<div class="col-xs-12">
-					<p>Select Product Collection</p>
-					<div class="col-xs-8">
-						<select ng-options="collection as collection.name for collection in collections" 
-						   ng-model="selectedCollection" ng-change="changeCollection(selectedCollection)" class="form-control"></select>					
-					</div>
-					<div class="col-xs-4">
-						<button type="button" class="btn btn-success" ng-click="openModal()">Create New Collection</button>
-					</div>					
-				</div>				
-			</div>
+			<div class="col-xs-12" ng-if="selectCollection">
+				<p>Select Product Collection</p>
+				<div class="col-xs-8" style="padding: 0px">
+					<select ng-options="collection as collection.name for collection in collections" 
+					   ng-model="selectedCollection" ng-change="changeCollection(selectedCollection)" class="form-control"></select>					
+				</div>
+				<div class="col-xs-4">
+					<button type="button" class="btn btn-success" ng-click="openModal()">Create New Collection</button>
+				</div>					
+			</div>				
+
 		</div>			
 		</div>
 		<div class="col-xs-6 col-xs-offset-2">
@@ -108,9 +121,10 @@
 					</div>
 					<div class="row" ng-if="uploadSuccess">
 						<p>Upload Succes: </p>
+						<p>@{{product}}</p>
 						<div class="products" >
-							<p ng-repeat="product in products">
-									<a href="https://www.facebook.com/@{{product.id}}" target="_blank">@{{product.name}}</a>
+							<p ng-repeat="product in products track by $index">
+									<span>@{{$index}} .</span><a href="https://www.facebook.com/@{{product.id}}" target="_blank">@{{product.name}}</a>
 							</p>
 						</div>						
 					</div>
@@ -154,16 +168,19 @@
 @endsection
 
 @section("script")
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.3/angular.min.js"></script>
 <script>
+	$("#pages").select2();
 	var app = angular.module("tool",[]);
-	app.controller("toolCtrl",function($scope,$http){
+	app.controller("toolCtrl",function($scope,$http,$q,$rootScope){
 		$scope.selectedPage = false;
 		$scope.selecedCategory = false;
 		$scope.loading = false;
 		$scope.uploadSuccess = false;
 		$scope.openSelectCollection = false;
 		$scope.openSubmitLinks = false;
+		$rootScope.products = [];
 		$http.get("api/pages").then(function(response){
 			 $scope.pages = response.data;
 			 $scope.loading = false;
@@ -171,35 +188,51 @@
 		$scope.changePage = function(selectePage){
 			$scope.openSelectCollection = true;
 			$scope.selectedPage = selectePage;
+			$scope.openSubmitLinks = false;
 			$scope.selectPage = true;
 			$scope.loading = true;
 			$http.get("api/product_category",{params:{"id": selectePage.id}}).then(function(response){
 				$scope.loading = false;
-				if(response.data.length > 0){
-					$scope.prodcutCategory = response.data;
+				if(response.data.cates.length > 0){
+					$scope.prodcutCategory = response.data.cates;
+					$scope.category = response.data.cates[0];
+					$scope.store_id = response.data.store_id;
+					if(response.data.store_id == null)
+					{
+						$scope.selectCollection = false;
+						$scope.store_disable = false;
+					}
 				} else {
 					$scope.selectPage = false;
 					$scope.selecedCategory = false;
-					console.log($scope.selecedCategory);
 				}
 			})
 		}
 
-		$scope.chanegCategory = function(selectCategory){
-			$scope.selecedCategory = selectCategory;
+		$scope.chanegCategory = function(category){
+			$scope.category = category;
+
 		}
 
 		$scope.submitLink = function(links){
 			$scope.loading = true;
-			var idCategory = $scope.selecedCategory.id;
-			$http.post("api/submitLinks",{links:links,id_category:idCategory,store:$scope.selectedCollection}).then(function(response){
+			
+			var idCategory = $scope.category.id;
+			var chain = $q.when();
+			angular.forEach(links,function(link){
+				chain = chain.then(function(){
+					return $http.post('api/submitLinks',{link:link,id_category:idCategory,store:$scope.selectedCollection}).then(function(resp){
+						$scope.uploadSuccess =true;
+						$rootScope.products.push(resp.data[0]);			
+					});
+				});
+			});
+			chain.then(function(){
 				$scope.loading = false;
-				$scope.uploadSuccess =true;
-				$scope.products = response.data;
-				console.log($scope.products);
-				alert("Done");
-
-			})
+				
+				console.log($rootScope.products);
+				alert("Done");   
+			});
 		}
 
 		$scope.changeCollection = function(selectedCollection){
@@ -211,6 +244,7 @@
 			$scope.store_id = store_id;
 			$http.get("api/getcollection",{params:{"store_id": store_id}}).then(function(response){
 				$scope.collections = response.data;
+				$scope.selectCollection = true;
 			})
 		}
 

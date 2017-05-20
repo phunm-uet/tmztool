@@ -3,8 +3,9 @@
 namespace App\Http\Middleware;
 
 use Closure;
-use Session;
-class TokenMiddleware
+use Illuminate\Support\Facades\Auth;
+
+class IdeaMiddleware
 {
     /**
      * Handle an incoming request.
@@ -15,10 +16,11 @@ class TokenMiddleware
      */
     public function handle($request, Closure $next)
     {
-        if(!$request->session()->has('access_token')){
-            Session::flash('errToken', "1");
-           return redirect()->route('config');
+        if(Auth::user()->department->slug != 'idea') {
+                $slug = Auth::user()->department->slug;
+                return redirect("/$slug"); 
+        } else {
+            return $next($request);
         }
-        return $next($request);
     }
 }

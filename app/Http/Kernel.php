@@ -54,6 +54,7 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         "tokenfb" => \App\Http\Middleware\TokenMiddleware::class,
         "marketing" => \App\Http\Middleware\MarketingMiddleware::class,
+        'idea' => \App\Http\Middleware\IdeaMiddleware::class,
         "admin" => \App\Http\Middleware\AdminMiddleware::class,
     ];
 }

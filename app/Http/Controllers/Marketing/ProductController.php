@@ -8,6 +8,8 @@ use App\Http\Controllers\Controller;
 use GuzzleHttp\Client;
 use Goutte\Client as GoutteClient;
 use Session;
+use App\Page;
+
 class ProductController extends Controller
 {
 	const BASE_FB_URL = "https://graph.facebook.com/v2.8/";
@@ -47,25 +49,26 @@ class ProductController extends Controller
 
     public function apiGetPages(Request $request)
     {
-    	$access_token = Session::get('accessTokenProduct');
-		$res = $this->client->request('GET', 'me/accounts',["query" => "access_token=$access_token&fields=name,id,picture{url}"]);
+    	$access_token = Session::get('access_token');
+		$res = $this->client->request('GET', 'me/accounts',["query" => "access_token=$access_token&fields=name,id,picture{url}&limit=300"]);
 		$res = json_decode($res->getBody(),true);
 		$data = $res['data'];
 		return response()->json($data);
     }
 
     public function apiCategory(Request $request){
-    	$access_token = Session::get('accessTokenProduct');
+    	$access_token = Session::get('access_token');
     	$id = $request->id;
 		$res = $this->client->request('GET', "$id/product_catalogs",["query" => "access_token=$access_token"]);
 		$res = json_decode($res->getBody(),true);
-		$data = $res['data'];
-		return response()->json($data);		
+		$cates = $res['data'];
+        $store_id = Page::where("page_id",$id)->pluck("store_id")->first();
+		return response()->json(['cates' => $cates,'store_id' => $store_id]);		
     }
 
     public function getCollection(Request $request)
     {
-        $access_token = Session::get('accessTokenProduct');;
+        $access_token = Session::get('access_token');;
         $store_id = $request->store_id;
         $res = $this->client->request('GET', "$store_id/commerce_store_collections",["query" => "access_token=$access_token"]);
 
@@ -75,14 +78,15 @@ class ProductController extends Controller
     }
 
     public function creatCollection(Request $request){
-        $access_token = Session::get('accessTokenProduct');;
+        $access_token = Session::get('access_token');;
         $name = $request->name;
         $store_id = $request->store_id;
         $parrams = [
             "name" => $name,
             "visibility" => "PUBLISHED",
             "filter" => "{\"product_item_id\":{\"is_any\":[]}}",
-            "access_token" => $access_token
+            "access_token" => $access_token,
+            "ordering_index" => time()
         ];
         $res = $this->client->request('POST',"$store_id/commerce_store_collections",
                 ["form_params" => $parrams]);
@@ -183,11 +187,16 @@ class ProductController extends Controller
     }    
 
     public function submitLinks(Request $request){
-    	$access_token = Session::get('accessTokenProduct');
+    	$access_token = Session::get('access_token');
         $col_id = $request->store["id"];
-    	$filterOld = $request->store["filter"];
-        $filterOld = json_decode($filterOld,true);
-    	$links = $request->links;
+
+        /*
+        Get FilterOld
+         */
+        $res = $this->client->request('GET',$col_id,["query" => "access_token=$access_token"]);
+        $data = json_decode($res->getBody(),true);
+        $filterOld = json_decode($data['filter'],true);
+    	$link = $request->link;
     	$idCategory = $request->id_category;
     	$products = array();
     	$goutteClient = new GoutteClient();
@@ -200,7 +209,6 @@ class ProductController extends Controller
 
         $goutteClient->setClient($guzzleClient);
 
-    	foreach($links as $link){
             if(strpos($link, "https://triplewiser.com/") > -1){
                 $form_data = $this->getTrippleLink($goutteClient,$link);
             }
@@ -215,25 +223,32 @@ class ProductController extends Controller
             }           
             if(isset($form_data)){
                 // Create Product_Group First 
-                $product_group_params = [
-                   "retailer_id" => "product_".time(),
-                    "access_token" => $access_token
-                ];
-                $res1 = $this->client->request('POST',"$idCategory/product_groups",
-                    ["form_params" => $product_group_params]);
-                $res1 = json_decode($res1->getBody(),true);
-                $product_group_id = $res1['id'];
-                $form_data['access_token'] = $access_token;
+                try {
+                    $product_group_params = [
+                       "retailer_id" => "product_".time(),
+                        "access_token" => $access_token
+                    ];
+                    $res1 = $this->client->request('POST',"$idCategory/product_groups",
+                        ["form_params" => $product_group_params]);
+                    $res1 = json_decode($res1->getBody(),true);
+                    $product_group_id = $res1['id'];
+                    $form_data['access_token'] = $access_token;
 
-                $res = $this->client->request('POST',"$product_group_id/products",
-                    ["form_params" => $form_data]);
-                $res = json_decode($res->getBody(),true);
-                array_push($products,["link" => $link,"id" => $res["id"],"name" => $form_data['name']]);
-               
-                array_push($filterOld["product_item_id"]['is_any'],$res['id']);                 
+                    $res = $this->client->request('POST',"$product_group_id/products",
+                        ["form_params" => $form_data]);
+                    $status = $res->getStatusCode();
+                    if($status == 200)
+                    {
+                        $res = json_decode($res->getBody(),true);
+                        array_push($products,["link" => $link,"id" => $res["id"],"name" => $form_data['name']]);
+                       
+                        array_push($filterOld["product_item_id"]['is_any'],$res['id']);                        
+                    }
+                } catch (\Exception $e) {
+                    
+                }
+              
             }
-
-    	}
 
         $filterOld = json_encode($filterOld);
         $res = $this->client->request('POST',"$col_id",

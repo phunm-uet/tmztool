@@ -8,6 +8,8 @@ use App\Page;
 use App\Niche;
 use App\PageNiche;
 use App\Http\Controllers\Marketing\FacebookController;
+use GuzzleHttp\Client;
+use Goutte\Client as GoutteClient;
 
 class PageController extends Controller
 {
@@ -21,7 +23,7 @@ class PageController extends Controller
     	}
     }
 
-    public function list(Request $request)
+    public function _list(Request $request)
     {
     	$pages = Page::all();
     	$niches = Niche::all();
@@ -77,6 +79,7 @@ class PageController extends Controller
             try {
                 $id = $page['id'];
                 $link = $page['link'];
+                $link = str_replace("www","business",$link);
                 $name = $page['name'];
                 $url_image = $page['picture']['data']['url'];
                 $page = new Page(['page_id' => $id,'url' => $link,'page_name' => $name,'url_image' => $url_image]);
@@ -87,4 +90,31 @@ class PageController extends Controller
         }
         return response()->json($pages);       
     }
+
+
+    public function get_store(Request $request)
+    {
+        $id = $request->id;
+        $url = $request->url;
+        $str_cookie = session('cookie_fb');
+        $client = new Client([
+            'headers' => ["cookie" => $str_cookie]
+        ]);
+        $goutteClient = new GoutteClient();
+        $goutteClient->setClient($client);
+        $crawler = $goutteClient->request('GET',$url."publishing_tools/");
+        $source_code = $crawler->html();
+        preg_match('/store_id":"([0-9]{10,20})"/',$source_code,$matches);
+        if(count($matches) == 2)
+        {
+            $page = Page::find($id);
+            $page->store_id = $matches[1];
+            $page->save();
+            return response()->json(["status" => 1]);
+        } else {
+            return response()->json(["status" => 0]);
+        }
+        
+    }
+
 }

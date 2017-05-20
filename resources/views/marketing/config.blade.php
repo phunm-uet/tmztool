@@ -5,7 +5,7 @@
 
 @section('menu')
     <li class="treeview">
-        <a href="marketing">
+        <a href="../marketing">
             <i class="fa fa-dashboard"></i> <span>Dashboard</span>
         </a>
     </li>
@@ -24,6 +24,17 @@
         <i class="fa fa-gear"></i> <span>Quản lý page</span>
       </a>
     </li>
+
+    @if ( Auth::user()->department->slug == "admin")
+      <li>
+        <li class="header">Admin</li>
+      </li>    
+      <li class="treeview">
+        <a href="{{route('admin-home')}}">
+          <i class="fa fa-gear"></i> <span>Chuyển qua Admin</span>
+        </a>
+      </li>    
+    @endif    
 @stop
 
 @section('content')
@@ -48,20 +59,12 @@
 				{{ csrf_field() }}
 				<div class="form-group">
 					<label for="accessToken">AccessToken For Ads</label>
-					@if(Session::has("accessToken"))
-						<input type="text" class="form-control" name="accessToken" value="{{Session::get('accessToken')}}">
+					@if(Session::has("access_token"))
+						<input type="text" class="form-control" name="accessToken" value="{{Session::get('access_token')}}">
 					@else
 						<input type="text" class="form-control" name="accessToken">
 					@endif
 					
-				</div>
-				<div class="form-group">
-					<label for="accessToken">AccessToken For Product Import</label>
-					@if(Session::has("accessToken"))
-						<input type="text" class="form-control" name="accessTokenProduct" value="{{Session::get('accessTokenProduct')}}">
-					@else
-						<input type="text" class="form-control" name="accessTokenProduct">
-					@endif
 				</div>
 				<button class="btn btn-primary btn-block" type="submit">Set Config</button>			
 			</form>

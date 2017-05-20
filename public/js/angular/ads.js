@@ -1,5 +1,5 @@
-var app = angular.module("ads",['toastr']);
-app.constant('HOST', window.location.origin);
+var app = angular.module("ads",['toastr','ngFileUpload']);
+app.constant('HOST', window.location.origin+"/fbtooltmz/public");
 app.run(function($http,$rootScope,HOST){
 	$rootScope.loading = true;
 	$rootScope.hoanthanh = false;
@@ -8,7 +8,6 @@ app.run(function($http,$rootScope,HOST){
 		var data = response.data;
 		$rootScope.niches = data.niches;
 		$rootScope.pages = data.pages;
-		$rootScope.types = data.types;
 		$rootScope.adaccounts = data.adaccounts;
 		$rootScope.gender = "1,2";
 		$rootScope.optionImage = "1";
@@ -16,7 +15,6 @@ app.run(function($http,$rootScope,HOST){
 		$rootScope.selectedNiche = $rootScope.niches[0];
 		$rootScope.country = "US";
 		$rootScope.selectedPage = $rootScope.pages[0];
-		$rootScope.selectedType = $rootScope.types[0];
 		$rootScope.selectedAdAccount = $rootScope.adaccounts[0];
 		$rootScope.pixels = $rootScope.selectedAdAccount.adspixels.data;
 		$rootScope.selectedPixel = $rootScope.pixels[0];
@@ -25,10 +23,31 @@ app.run(function($http,$rootScope,HOST){
 		console.log(error);
 	});
 });
-app.controller("adsController",function($http,$scope,HOST,toastr){
+app.controller("adsController",function($http,$scope,HOST,toastr,Upload){
 
 	$scope.changeNiche = function(selectedNich) {
 		$scope.interests = $scope.selectedNiche.interests;
+	}
+
+	$scope.uploadFiles = function(file,error)
+	{
+		$scope.loading = true;
+		$scope.f = file;
+        $scope.errFile = error && error[0];
+        if(file){
+        	file.upload = Upload.upload({
+        		url : 'http://toanvo.com/fbtooltmz/public/api/marketing/upload',
+        		data : {file: file}
+        	});
+        	file.upload.then(function(resp){
+        		$scope.image_link = resp.data.link;
+        		toastr.success("Done","Upload Hinh thanh cong");
+        		$scope.loading = false;
+        	}).catch(function(e){
+        		alert("Có lỗi trong quá trình upload");
+        		$scope.loading = false;
+        	});
+        }
 	}
 
 	// Handle event paste Product Link
@@ -68,7 +87,7 @@ app.controller("adsController",function($http,$scope,HOST,toastr){
 	 $scope.createCampaign = function(){
 	 	$scope.loading = true;
 	 	var form_data = {
-	 		"country" : $scope.country,
+	 		"country" : $("#country").val(),
 	 		"interest" : $scope.selectedInterest,
 	 		"page" : $scope.selectedPage,
 	 		"minage" : $scope.minage,
@@ -78,7 +97,9 @@ app.controller("adsController",function($http,$scope,HOST,toastr){
 	 		"description" : $scope.description,
 	 		"ad_account" : $scope.selectedAdAccount,
 	 		"niche" : $scope.selectedNiche.name,
-	 		"pixel" : $scope.selectedPixel
+	 		"pixel" : $scope.selectedPixel,
+	 		"typeAds" : $scope.typeAds,
+	 		"typeProduct" : $scope.selectedType
 	 	};
 	 	$http.post(HOST+"/api/marketing/submitAds",form_data).then(function(response){
 	 		$scope.loading = false;

@@ -17,7 +17,7 @@ class NicheController extends Controller
     	}    	
     }
 
-    public function list(Request $request)
+    public function _list(Request $request)
     {
     	$niches = Niche::all();
     	return view('admin.niche.list')->with(['niches' => $niches]);

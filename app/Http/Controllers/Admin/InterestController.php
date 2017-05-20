@@ -24,7 +24,8 @@ class InterestController extends Controller
      * Function show list Interest in db
      * @return [view]   view list interest
      */
-    public function list(Request $request)
+    
+    public function _list(Request $request)
     {
     	$niches = Niche::all();
     	$interests = Interest::all();
@@ -87,7 +88,10 @@ class InterestController extends Controller
     {
     	$id = $request->id;
     	$interest = Interest::find($id);
+        $interest->name = $request->name;
+        $interest->num_audience = $request->num_audience;
         $interest->niche_id = $request->niche_id;
+        $interest->targeting = $request->targeting;
         Interest::getInterestPage()->where('interest_id',$id)->delete();
         $pages = $request->pages;
         foreach($pages as $page)

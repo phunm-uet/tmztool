@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Marketing;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Marketing\FacebookController;
 
 class ManagePagesController extends Controller
 {
@@ -17,6 +18,12 @@ class ManagePagesController extends Controller
 
     public function detail(Request $request)
     {
-    	return view("marketing.page-detail")->with(["id" => $request->id]);
+        $accessToken = $request->session()->get('access_token');
+        $id = $request->id;
+        $fb = new FacebookController();
+        $fb->setToken($accessToken);
+        $pageInfo = $fb->getNode("$id");
+        $name = $pageInfo['name'];
+    	return view("marketing.page-detail")->with(["id" => $request->id,"name" => $name]);
     }
 }

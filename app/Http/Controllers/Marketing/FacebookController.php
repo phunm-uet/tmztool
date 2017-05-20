@@ -19,7 +19,7 @@ class FacebookController extends Controller
     {
         $this->client = new Client([
             'base_uri'=> self::BASE_FB_URL,
-            'timeout' => '5.0',
+            'timeout' => '20.0',
             'http_errors' => false
             ]);     
     }

@@ -15,10 +15,15 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::group(['prefix' => "product"],function(){
-	Route::get('/login',"ProductController@index");
-	Route::post('/login', "ProductController@postLogin");
-	Route::get('hd', 'ProductController@hd');	
+// All routes for idea
+Route::group(['prefix' => 'idea','middleware' => ['idea','auth']], function () {
+    Route::get('/', 'IdeaController@index');
+    Route::get('/form', 'IdeaController@getForm');
+    Route::post('/form', ['as'=>'ideaUpload', 'uses'=>'IdeaController@ideaUpload']);
+    Route::get('/pending', function(){
+      return view('ideas/pending');
+    });
+    Route::post('/pending', ['as'=>'editIdeaPending', 'uses'=>'IdeaController@editIdeaPending']);
 });
 
 
@@ -37,6 +42,7 @@ Route::group(['prefix' => 'marketing','namespace' => "Marketing","middleware" =>
 
     // route for product
     Route::get('/product',["as" => "import_fb","uses" => "ProductController@getProduct","middleware" => "tokenfb"]);
+
     Route::get('api/pages',"ProductController@apiGetPages");
     Route::get('api/product_category','ProductController@apiCategory');
     Route::post('api/submitLinks','ProductController@submitLinks');
@@ -45,22 +51,24 @@ Route::group(['prefix' => 'marketing','namespace' => "Marketing","middleware" =>
     // Manage Page
     Route::get("pages",["as" => "pages","uses" => "ManagePagesController@index","middleware" => "tokenfb"]);
     Route::get("page/{id}",['as' => 'page-detail','uses' => 'ManagePagesController@detail',"middleware" => "tokenfb"]);
-    Route::get('/{name?}',"IndexController@index");
+    Route::get('/{name?}',['as' => 'marketing-home','uses' => "IndexController@index"]);
 
 });
 
 
 // Route for admin
 Route::group(['prefix' => 'admin','namespace' => 'Admin','middleware' => ['auth','admin']],function(){
-    Route::get('/', 'IndexController@index');
-    Route::get("interest",['as' => 'interest-home','uses' => "InterestController@list"]);
+    Route::get('/', ["as" => "admin-home",'uses' => 'IndexController@index']);
+    Route::get("interest",['as' => 'interest-home','uses' => "InterestController@_list"]);
     Route::any("interest/{action_name?}","InterestController@index");
-    Route::get('niche',['as' => 'niche-home','uses' => 'NicheController@list']);
+    Route::get('niche',['as' => 'niche-home','uses' => 'NicheController@_list']);
     Route::any('niche/{action_name?}',"NicheController@index");
-    Route::get('page',['as' => 'page-home','uses' => 'PageController@list']);
+    Route::get('page',['as' => 'page-home','uses' => 'PageController@_list']);
     Route::any('page/{action_name?}',['uses' => 'PageController@index']);
     Route::any('niche/{action_name?}',"NicheController@index");    
-    Route::any('/config',"ConfigController@index");
+    Route::any('/config',['as' => 'admin-config','uses' => 'ConfigController@index']);
+    Route::post('/config/get-token','ConfigController@getToken');
+    Route::post('/config/delete-user','ConfigController@delete');
 });
 
 Route::get('/home', 'HomeController@index');
@@ -78,5 +86,9 @@ Route::group(['prefix' => 'api','namespace' => "Api", 'middleware' => 'auth'], f
       Route::get('thong-so-ads','ManagePagesController@getDataForSetAds');
       Route::post("sbAds",'ManagePagesController@submitAds');
       Route::get('country',"AdsDropShipController@getCountry");
+      Route::post('upload',"AdsDropShipController@uploadImage");
+      Route::get('ads-running',"ManagePagesController@getCampaignRuning");
+      Route::get('get-campaign-info',"ManagePagesController@getCampaignInfo");
+      Route::post('pause-ads',"ManagePagesController@pauseAds");
    });
 });

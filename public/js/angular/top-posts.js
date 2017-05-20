@@ -1,7 +1,6 @@
 app.controller('top-posts',function($scope,$http,$rootScope,toastr){
-	const HOST = "http://tmztool.com";
-	$http.get('/api/marketing/thong-so-ads').then(function(res){
-		console.log(res.data);
+	const HOST = "http://toanvo.com/fbtooltmz/public";
+	$http.get('http://tmztool.com/api/marketing/thong-so-ads').then(function(res){
 		$scope.adaccounts = res.data.adaccounts;
 		$scope.niches = res.data.niches;
 		$scope.selectedNiche = $scope.niches[0];
@@ -11,11 +10,13 @@ app.controller('top-posts',function($scope,$http,$rootScope,toastr){
 		$scope.country = "US";
 		$scope.pixels = $scope.selectedAdAccount.adspixels.data;
 		$scope.selectedPixel = $scope.pixels[0];
+    $scope.typeAds = "POST_ENGAGEMENT";
 	})
 	
-	$http.get("/api/marketing/get-top-posts",{
+	$http.get("http://tmztool.com/api/marketing/get-top-posts",{
     	params : { id : $rootScope.id}
   	}).then(function(response){
+      console.log(response.data);
   		$scope.posts = response.data;
   	});
 
@@ -26,7 +27,14 @@ app.controller('top-posts',function($scope,$http,$rootScope,toastr){
 
   	$scope.changeAdAccount = function(adaccount)
   	{
-  		$scope.pixels = scope.selectedAdAccount.adspixels.data;
+      if(typeof($scope.selectedAdAccount.adspixels.data) != "undefined")
+      {
+        $scope.pixels = $scope.selectedAdAccount.adspixels.data;
+      } else 
+      {
+        $scope.pixels = null;
+      }
+  		
   	}
 
   	$scope.openModal = function(id)
@@ -41,15 +49,18 @@ app.controller('top-posts',function($scope,$http,$rootScope,toastr){
   		var form_data = {
   			"name_campaign" : $scope.name_campaign,
 	 		"country" : $scope.country,
-	 		"interest" : $scope.selectedInterest,
+	 		"interest" : $("#interest").val(),
 	 		"post_id" : $scope.selectedPost,
 	 		"minage" : $scope.minage,
 	 		"maxage" : $scope.maxage,
 	 		"ad_account" : $scope.selectedAdAccount,
 	 		"niche" : $scope.selectedNiche.name,
-	 		"pixel" : $scope.selectedPixel  			
+	 		"pixel" : $scope.selectedPixel,
+      "budget" : $scope.budget,
+      "typeAds" : $scope.typeAds,
+      "id" : $rootScope.id,	
   		};
-  		$http.post(HOST+"/api/marketing/sbAds",form_data).then(function(res){
+  		$http.post("http://tmztool.com/api/marketing/sbAds",form_data).then(function(res){
   			$("#campaign").modal('hide');
   			toastr.success("Done","Thanh cong");
   		}).catch(function(err){

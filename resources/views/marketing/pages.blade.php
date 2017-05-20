@@ -4,12 +4,12 @@
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.3/angular.min.js"></script>
 @stop
 @section('breadcrumb')
-    Config
+    Page 
 @endsection
 
 @section('menu')
     <li class="treeview">
-        <a href="./">
+        <a href="../marketing">
             <i class="fa fa-dashboard"></i> <span>Dashboard</span>
         </a>
     </li>
@@ -28,6 +28,17 @@
         <i class="fa fa-gear"></i> <span>Quản lý page</span>
       </a>
     </li>
+
+    @if ( Auth::user()->department->slug == "admin")
+      <li>
+        <li class="header">Admin</li>
+      </li>    
+      <li class="treeview">
+        <a href="{{route('admin-home')}}">
+          <i class="fa fa-gear"></i> <span>Chuyển qua Admin</span>
+        </a>
+      </li>    
+    @endif    
 @stop
 
 @section('content')
@@ -89,7 +100,7 @@
  var app = angular.module('pages',[]);
  app.controller('pagesController', function($scope,$http){
   $scope.loading = true;
-    var api = "http://tmztool.com/api/marketing/pages";
+    var api = "http://tmztool.com//api/marketing/pages";
     $http.get(api).then(function(response){
         $scope.pages = response.data;
         $scope.loading = false;

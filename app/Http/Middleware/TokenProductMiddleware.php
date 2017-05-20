@@ -15,7 +15,7 @@ class TokenMiddleware
      */
     public function handle($request, Closure $next)
     {
-        if(!$request->session()->has('accessToken')){
+        if(!$request->session()->has('access_token')){
             Session::flash('errToken', "1");
            return redirect()->route('config');
         }

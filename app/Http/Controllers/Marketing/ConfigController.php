@@ -22,27 +22,13 @@ class ConfigController extends Controller
     		$fb->setToken($accessToken);
     		try{
     			$data = $fb->getEdge("me/adaccounts");
-                // dd($accessToken);
-                session()->put('accessToken', $accessToken);
-    			// session(["accessToken",$accessToken]);
+                session()->put('access_token', $accessToken);
     		} catch(Exception $e){
     			$errors['accessToken'] = 1;
     		}
     		
     	}
-
-    	if($request->accessTokenProduct != ""){
-    		$accessTokenProduct = $request->accessTokenProduct;
-            $fb->setToken($accessToken);
-            try{
-                $data = $fb->getEdge("me/adaccounts");
-                // dd($accessToken);
-                session()->put('accessTokenProduct', $accessTokenProduct);
-            } catch(Exception $e){
-                $errors['accessToken'] = 1;
-            }            
-    	}
-
+        
     	if(count($errors) == 0){
     		return redirect("/marketing");
     	}

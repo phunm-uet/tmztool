@@ -1,4 +1,7 @@
 @extends('admin.layout')
+@section('css')
+	<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs/dt-1.10.15/datatables.min.css"/>
+@endsection
 @section('content')
 <div class="container-fluid">
 	<div class="col-xs-12">
@@ -15,12 +18,13 @@
 					<a href="javascript:void(0)" class="btn btn-success" id="sync">Sync</a>
 				</div>
 			</div>
-				<table class="table table-hover table-bordered">
+				<table class="table table-hover table-bordered" id="pages">
 					<thead>
 						<tr>
 							<th hidden="true"></th>
 							<th>STT</th>
 							<th>Page</th>
+							<th>Store ID</th>
 							<th>Niche</th>
 							<th>Action</th>
 						</tr>
@@ -30,7 +34,8 @@
 							<tr>
 								<th hidden="true" class="id">{{$page->id}}</th>
 								<td>{{$loop->iteration	}}</td>
-								<td><a href="https://facebook.com/{{$page->page_id}}" target="_blank">{{$page->page_name}}</a></td>
+								<td><a href="{{$page->url}}" target="_blank">{{$page->page_name}}</a></td>
+								<td>{{$page->store_id}}</td>
 								<td>
 									@foreach($page->niches as $niche)
 										<span class="niche_id" hidden="true">{{$niche->id}}</span>
@@ -40,6 +45,7 @@
 								<td>
 									<a href="javascript:void(0)" class="btn btn-xs btn-warning edit">Edit</a>
 									<a href="javascript:void(0)" class="btn btn-xs btn-danger delete">Delete</a>
+									<a href="javascript:void(0)" class="btn btn-xs btn-info" onclick="updateStore('{{$page->url}}',{{$page->id}})">Update Store_id</a>
 								</td>
 							</tr>
 						@endforeach
@@ -94,8 +100,35 @@
 
 @section('script')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
+<script src="http://tmztool.com/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="http://tmztool.com/plugins/datatables/dataTables.bootstrap.min.js"></script>
 	<script>
+	
+	var cookie = "{{Session::get('cookie_fb')}}";
+	var updateStore = function(url,id)
+	{
+		if(cookie!= "")
+		{
+			$('.overlay').show();
+			$.post('http://toanvo.com/fbtooltmz/public/admin/page/get_store', {_token: window.Laravel.csrfToken,url: url,id : id}, function(data, textStatus, xhr) {
+					if(data.status == 1)
+					{
+						$('.overlay').hide();
+						location.reload();
+					} else {
+						$('.overlay').hide();
+						alert('Page chưa có shop section');
+					}
+				});			
+		} else {
+			alert("Bạn cần config trưóc");
+			window.location.href = "./config";
+			return;
+		}
+
+	};
 		$(document).ready(function() {
+			$("#pages").DataTable();
 			$(".select2").select2();
 
 			$("#sync").on("click",function(){

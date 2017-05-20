@@ -30,6 +30,18 @@
         <i class="fa fa-gear"></i> <span>Quản lý page</span>
       </a>
     </li>
+
+    @if ( Auth::user()->department->slug == "admin")
+      <li>
+        <li class="header">Admin</li>
+      </li>    
+      <li class="treeview">
+        <a href="{{route('admin-home')}}">
+          <i class="fa fa-gear"></i> <span>Chuyển qua Admin</span>
+        </a>
+      </li>    
+    @endif
+     
 @stop
 
 @section('content')

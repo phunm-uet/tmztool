@@ -19,7 +19,7 @@
 
 @section('menu')
     <li class="treeview">
-        <a href="./">
+        <a href="../marketing">
             <i class="fa fa-dashboard"></i> <span>Dashboard</span>
         </a>
     </li>
@@ -38,6 +38,16 @@
         <i class="fa fa-gear"></i> <span>Quản lý page</span>
       </a>
     </li>
+    @if ( Auth::user()->department->slug == "admin")
+      <li>
+        <li class="header">Admin</li>
+      </li>    
+      <li class="treeview">
+        <a href="{{route('admin-home')}}">
+          <i class="fa fa-gear"></i> <span>Chuyển qua Admin</span>
+        </a>
+      </li>    
+    @endif    
 @stop
 
 @section('content')
@@ -97,7 +107,7 @@
                       <div class="input-group-btn">
                         <label class="btn bg-olive btn-flat">Loại Sản Phẩm: </label>
                       </div>
-                      <select name="type" class="form-control" required="true" ng-options="type as type.product_type for type in types" ng-model="selectedType"></select>
+                      <input type="text" class="form-control" ng-model="selectedType">
                     </div>
                   </div>                    
                 </div>               
@@ -127,7 +137,7 @@
                   <div class="input-group-btn">
                     <label class="btn bg-olive btn-flat">Pixels: </label>
                   </div>
-                  <select class="form-control" ng-options="pixel as pixel.id for pixel in pixels" ng-model="selectedPixel"></select>
+                  <select class="form-control" ng-options="pixel.name + '(' + pixel.id +')' for pixel in pixels" ng-model="selectedPixel"></select>
                 </div>
               </div> 
               {{-- End Pixel --}}
@@ -146,24 +156,43 @@
               </div>
               <input type="text" id="linksanpham" class="form-control" ng-model="product_link" placeholder="Nhập link sản phẩm ..." required="true" ng-paste="paste($event.originalEvent)">
             </div>
+            <div class="col-lg-6">
+              <div class="form-group input-group">
+                <label class="radio-inline"><input type="radio" name="optradio" ng-model="optionImage" value="1">Default</label>
+                <label class="radio-inline"><input type="radio" name="optradio" ng-model="optionImage" value="2">Custom</label>           
+              </div>
+            </div>
+              <div class="col-lg-6">
+                <div class="form-group input-group">
 
-            <div class="form-group input-group">
-              <label class="radio-inline"><input type="radio" name="optradio" ng-model="optionImage" value="1">Default</label>
-              <label class="radio-inline"><input type="radio" name="optradio" ng-model="optionImage" value="2">Custom</label>           
-            </div>   
+                    <label class="radio-inline">
+                      <input type="radio" name="typeAds" ng-model="typeAds" value="POST_ENGAGEMENT">
+                      PPE
+                    </label>
+                    <label class="radio-inline">
+                      <input type="radio" name="typeAds" ng-model="typeAds" value="CONVERSIONS">
+                      WC
+                    </label>                    
+                  </div>               
+              </div>               
             {{-- End option defaut image product          --}}
             <div class="form-group input-group" id="hinhsanpham" ng-if="optionImage == 1">
               <div class="input-group-btn">
                 <label class="btn bg-olive btn-flat">Product Image</label>
               </div>
-              <input type="text" name="hinhsanpham" class="form-control" placeholder="Link Image" disabled ng-model="image_link">
+              <input type="text" name="hinhsanpham" class="form-control" placeholder="Link Image"  ng-model="image_link">
             <span class="input-group-btn">
               <a class="btn btn-default" ng-href="@{{image_link}}" target="_blank"><span class="fa fa-hand-o-right"></span></a>
             </span>
             </div>
             <div class="form-group input-group" id="hinhsanpham" ng-if="optionImage == 2">
-                <input type="file" class="form-control-file" id="exampleInputFile" aria-describedby="fileHelp" ng-model="image" required="true"  onchange="angular.element(this).scope().uploadImage(this.file)">
+                <input type="file" ngf-select="uploadFiles($file, $invalidFiles)"
+                          accept="image/*" ngf-max-size="2MB" ng-model="thumb">
             </div>
+          <span class="progress" ng-show="f.progress >= 0">
+              <div style="width:@{{f.progress}}%"  
+                   ng-bind="f.progress + '%'"></div>
+          </span>                                 
           </div>
           <div class="clearfix"></div>
           <div class="col-xs-12" style="margin-top: 20px">
@@ -204,6 +233,8 @@
 @section('script')
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
   <script src="https://unpkg.com/angular-toastr/dist/angular-toastr.tpls.js"></script>
+  <script src="{{ asset('js/ng-file-upload.js') }}"></script>
+  <script src="{{ asset('js/ng-file-upload-shim.js') }}"></script>
 <script src="{{asset('plugins/iCheck/icheck.min.js')}}"></script>
 <script src="{{asset("js/angular/ads.js")}}"></script>
 <script>
@@ -211,7 +242,7 @@
     $(".select2").select2();
     $("#country").select2({
       ajax : {
-        url : "http://tmztool.com/api/marketing/country",
+        url : "http://toanvo.com/fbtooltmz/public/api/marketing/country",
         placeholder : "Select country",
         dataType : 'json',
         delay : 250,
