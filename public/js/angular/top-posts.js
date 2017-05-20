@@ -1,5 +1,5 @@
 app.controller('top-posts',function($scope,$http,$rootScope,toastr){
-	const HOST = "http://toanvo.com/fbtooltmz/public";
+	const HOST = "http://tmztool.com/";
 	$http.get('http://tmztool.com/api/marketing/thong-so-ads').then(function(res){
 		$scope.adaccounts = res.data.adaccounts;
 		$scope.niches = res.data.niches;

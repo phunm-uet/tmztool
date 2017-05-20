@@ -11,7 +11,7 @@ app.controller("likes", function ($scope,$rootScope,$http) {
   
   $scope.labels = dates;
 
-  $http.get("http://toanvo.com/fbtooltmz/public/api/marketing/getdatas",{
+  $http.get("http://tmztool.com/api/marketing/getdatas",{
     params : { id : $rootScope.id ,type : "likes"}
   }).then(function(resp){
     

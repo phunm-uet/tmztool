@@ -110,7 +110,7 @@
 		if(cookie!= "")
 		{
 			$('.overlay').show();
-			$.post('http://toanvo.com/fbtooltmz/public/admin/page/get_store', {_token: window.Laravel.csrfToken,url: url,id : id}, function(data, textStatus, xhr) {
+			$.post('http://tmztool.com/admin/page/get_store', {_token: window.Laravel.csrfToken,url: url,id : id}, function(data, textStatus, xhr) {
 					if(data.status == 1)
 					{
 						$('.overlay').hide();

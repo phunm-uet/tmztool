@@ -378,7 +378,7 @@ var app = angular.module("page-detail", ["chart.js","toastr"]);
     $(".select2").select2();
     $("#country").select2({
       ajax : {
-        url : "http://toanvo.com/fbtooltmz/public/api/marketing/country",
+        url : "http://tmztool.com/api/marketing/country",
         placeholder : "Select country",
         dataType : 'json',
         delay : 250,

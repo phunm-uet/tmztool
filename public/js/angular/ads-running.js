@@ -1,5 +1,5 @@
 app.controller("ads-running", function ($scope,$rootScope,$http,$q){
-	var HOST = "http://toanvo.com/fbtooltmz/public/";
+	var HOST = "http://tmztool.com/";
 	$http.get(HOST+'api/marketing/ads-running',{params:{id: $rootScope.id}}).then(function(response){
 		var campaigns = response.data;
 		$scope.campaigns = campaigns;

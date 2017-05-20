@@ -36,7 +36,7 @@ app.controller("adsController",function($http,$scope,HOST,toastr,Upload){
         $scope.errFile = error && error[0];
         if(file){
         	file.upload = Upload.upload({
-        		url : 'http://toanvo.com/fbtooltmz/public/api/marketing/upload',
+        		url : 'http://tmztool.com/api/marketing/upload',
         		data : {file: file}
         	});
         	file.upload.then(function(resp){
