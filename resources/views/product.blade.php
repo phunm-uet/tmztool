@@ -196,7 +196,6 @@
 				if(response.data.cates.length > 0){
 					$scope.prodcutCategory = response.data.cates;
 					$scope.category = response.data.cates[0];
-					$scope.store_id = response.data.store_id;
 					if(response.data.store_id == null)
 					{
 						$scope.selectCollection = false;

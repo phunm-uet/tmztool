@@ -62,8 +62,7 @@ class ProductController extends Controller
 		$res = $this->client->request('GET', "$id/product_catalogs",["query" => "access_token=$access_token"]);
 		$res = json_decode($res->getBody(),true);
 		$cates = $res['data'];
-        $store_id = Page::where("page_id",$id)->pluck("store_id")->first();
-		return response()->json(['cates' => $cates,'store_id' => $store_id]);		
+		return response()->json(['cates' => $cates]);		
     }
 
     public function getCollection(Request $request)

@@ -9,7 +9,7 @@ use Goutte\Client as GoutteClient;
 use Exception;
 class FacebookController extends Controller
 {
-    const BASE_FB_URL = "https://graph.facebook.com/v2.8/";
+    const BASE_FB_URL = "https://graph.facebook.com/v2.10/";
     var $client;
     var $accessToken;
     /**
